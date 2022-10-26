@@ -54,13 +54,20 @@ module instruction_fetch (
         ifif.instruction <= 32'hffffffff;
       end
       else begin
-        if ((ifif.ihit || ifif.dhit) && ~ifif.load_use && ~ifif.jump_use) begin //ifif.dhit
+        if (ifif.dhit && ~ifif.load_use && ~ifif.jump_use) begin 
+          ifif.instruction <= 32'b0;
+        end
+        else if (ifif.ihit && ~ifif.load_use && ~ifif.jump_use) begin //ifif.dhit
           ifif.instruction <= ifif.cache_in;
         end
         else if (ifif.jump_use && ~ifif.load_use) begin
           ifif.instruction <= 32'b0;
         end
-        if (ifif.jump_sig == 2'd1 && ~ifif.load_use && ~ifif.jump_use) begin
+        if (ifif.cache_in[31:26] == 6'b000010) begin
+          ifif.PC <= {next_pp4[31:28],ifif.cache_in[25:0],2'b0};
+          ifif.pp4 <= next_pp4;
+        end
+        else if (ifif.jump_sig == 2'd1 && ~ifif.load_use && ~ifif.jump_use) begin
           ifif.PC <= ifif.jump_add;
           ifif.pp4 <= next_pp4;
         end

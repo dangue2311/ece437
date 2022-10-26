@@ -38,7 +38,7 @@ module datapath (
   writeback WBACK(wbif);
   forwarding_unit FORWARD(fuif);
 
-  logic mem_ren, mem_ren2;
+  logic hold1, hold2;
   
   always_comb begin
     //Assign Instruction Fetch inputs
@@ -170,7 +170,7 @@ module datapath (
     wbif.alu_out = memif.out_next;
 
     //assign DP
-    caif.imemREN = (huif.jump_use == 1'b1) ? 1'b0 : 1'b1;
+    caif.imemREN = (huif.jump_use == 1'b1) ? 1'b0 : 1'b1; // || hold1 && ~hold2
     caif.imemaddr = ifif.PC;
     caif.dmemREN = exeif.mem_read_next && ~(exeif.halt_next || memif.halt_next);
     caif.dmemWEN = exeif.mem_write_next && ~(exeif.halt_next || memif.halt_next);
@@ -180,10 +180,16 @@ module datapath (
   end
 
     always_ff @(posedge CLK, negedge nRST) begin
-      if(~nRST) 
+      if(~nRST) begin
         caif.halt <= 1'b0;
-      else 
+        hold1 <= 1'b0;
+        hold2 <= 1'b0;
+      end
+      else begin
         caif.halt <= memif.halt_next | caif.halt;
+        hold1 <= caif.ihit?1'b1:1'b0;
+        hold2 <= hold1;
+      end
     end
 
 endmodule

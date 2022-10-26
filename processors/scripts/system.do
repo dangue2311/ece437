@@ -4,6 +4,8 @@ add wave -noupdate /system_tb/CLK
 add wave -noupdate /system_tb/nRST
 add wave -noupdate -group Datapath /system_tb/DUT/CPU/DP/caif/halt
 add wave -noupdate -group Datapath /system_tb/DUT/CPU/DP/caif/ihit
+add wave -noupdate -group Datapath /system_tb/DUT/CPU/DP/hold1
+add wave -noupdate -group Datapath /system_tb/DUT/CPU/DP/hold2
 add wave -noupdate -group Datapath /system_tb/DUT/CPU/DP/caif/imemREN
 add wave -noupdate -group Datapath /system_tb/DUT/CPU/DP/caif/imemload
 add wave -noupdate -group Datapath /system_tb/DUT/CPU/DP/caif/imemaddr
@@ -254,7 +256,7 @@ add wave -noupdate -group Hazard /system_tb/DUT/CPU/DP/huif/flag_ju
 add wave -noupdate -group Hazard /system_tb/DUT/CPU/DP/huif/flag_lu_done
 add wave -noupdate -group Hazard /system_tb/DUT/CPU/DP/huif/flag_ju_done
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {1312434322 ps} 0}
+WaveRestoreCursors {{Cursor 1} {7013712 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 100
@@ -270,4 +272,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {1311809990 ps} {1314397872 ps}
+WaveRestoreZoom {6919974 ps} {7491882 ps}

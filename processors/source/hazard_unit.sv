@@ -52,9 +52,13 @@ module hazard_unit (
               huif.load_use = 1'b1;
               huif.flag_lu = 1'b1;
             end
-          end
-          if (huif.fetch_instruction[31:26] == 6'b101011 || (huif.fetch_instruction[31:26] == 6'b0 && huif.fetch_instruction[5:0] != 6'b0)) begin
+          end 
+          if (huif.fetch_instruction[31:26] == 6'b101011 || huif.fetch_instruction[31:26] == 6'b000100 || huif.fetch_instruction[31:26] == 6'b000101 ||(huif.fetch_instruction[31:26] == 6'b0 && huif.fetch_instruction[5:0] != 6'b0)) begin
             if (rd_dec == rs_fetch || rd_dec == rt_fetch || rd_exec == rs_fetch || rd_exec == rt_fetch) begin  
+              huif.load_use = 1'b1;
+              huif.flag_lu = 1'b1;
+            end
+            if (rt_dec == rs_fetch || rt_dec == rt_fetch || rt_exec == rs_fetch || rt_exec == rt_fetch) begin 
               huif.load_use = 1'b1;
               huif.flag_lu = 1'b1;
             end

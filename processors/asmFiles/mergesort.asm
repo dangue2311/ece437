@@ -12,6 +12,7 @@ org 0x0000
   or    $s1, $zero, $a0
   or    $s2, $zero, $a1
   jal   insertion_sort
+halt
   ori   $t1, $0, 1
   srlv  $t0, $t1, $s0
   subu  $a1, $s0, $t0
