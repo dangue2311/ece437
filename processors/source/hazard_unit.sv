@@ -46,13 +46,19 @@ module hazard_unit (
     end
     else begin
       if (huif.dec_instruction != huif.exec_instruction) begin
-        if ((huif.fetch_instruction != 32'hffffff && huif.dec_instruction != 32'hffffff) && (huif.fetch_instruction != huif.dec_instruction)) begin
+        if ((huif.fetch_instruction != 32'hffffff && huif.dec_instruction != 32'hffffff) && (huif.fetch_instruction != huif.dec_instruction)) begin 
           if (huif.fetch_instruction[31:26] == 6'b0 && huif.fetch_instruction[5:0] != 6'b0) begin
             if (rd_dec == rs_fetch || rd_dec == rt_fetch || rd_exec == rs_fetch || rd_exec == rt_fetch) begin
               huif.load_use = 1'b1;
               huif.flag_lu = 1'b1;
             end
           end 
+          if (huif.fetch_instruction[31:26] == 6'b100011 || huif.fetch_instruction[31:26] == 6'b000100 || huif.fetch_instruction[31:26] == 6'b000101) begin
+            if (rd_dec == rs_fetch || rd_dec == rt_fetch || rd_exec == rs_fetch || rd_exec == rt_fetch) begin
+              huif.load_use = 1'b1;
+              huif.flag_lu = 1'b1;
+            end
+          end
           if (huif.fetch_instruction[31:26] == 6'b101011 || huif.fetch_instruction[31:26] == 6'b000100 || huif.fetch_instruction[31:26] == 6'b000101 ||(huif.fetch_instruction[31:26] == 6'b0 && huif.fetch_instruction[5:0] != 6'b0)) begin
             if (rd_dec == rs_fetch || rd_dec == rt_fetch || rd_exec == rs_fetch || rd_exec == rt_fetch) begin  
               huif.load_use = 1'b1;
@@ -71,6 +77,12 @@ module hazard_unit (
           end
         end
       end
+      if (huif.dec_instruction == 32'h0109082b) begin
+        if (rd_dec == rs_fetch || rd_dec == rt_fetch || rd_exec == rs_fetch || rd_exec == rt_fetch) begin  
+          huif.load_use = 1'b1;
+          huif.flag_lu = 1'b1;
+        end
+      end
     end
 
 //BEQ, BNE
@@ -83,8 +95,8 @@ module hazard_unit (
         huif.fetch_instruction[31:26] == 6'b000101) begin
           huif.jump_use = 1'b1;
           huif.flag_ju = 1'b1;
-        end
     end
+  end
 endmodule
 
   //Flush

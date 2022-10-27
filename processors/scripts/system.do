@@ -249,14 +249,23 @@ add wave -noupdate -group WriteBack /system_tb/DUT/CPU/DP/wbif/final_write_data
 add wave -noupdate -group Hazard /system_tb/DUT/CPU/DP/huif/load_use
 add wave -noupdate -group Hazard /system_tb/DUT/CPU/DP/huif/jump_use
 add wave -noupdate -group Hazard /system_tb/DUT/CPU/DP/huif/fetch_instruction
+add wave -noupdate -group Hazard -group {Fetch instruction} /system_tb/DUT/CPU/DP/HUNIT/rs_fetch
+add wave -noupdate -group Hazard -group {Fetch instruction} /system_tb/DUT/CPU/DP/HUNIT/rt_fetch
+add wave -noupdate -group Hazard -group {Fetch instruction} /system_tb/DUT/CPU/DP/HUNIT/rd_fetch
 add wave -noupdate -group Hazard /system_tb/DUT/CPU/DP/huif/dec_instruction
+add wave -noupdate -group Hazard -group Decode /system_tb/DUT/CPU/DP/HUNIT/rs_dec
+add wave -noupdate -group Hazard -group Decode /system_tb/DUT/CPU/DP/HUNIT/rt_dec
+add wave -noupdate -group Hazard -group Decode /system_tb/DUT/CPU/DP/HUNIT/rd_dec
 add wave -noupdate -group Hazard /system_tb/DUT/CPU/DP/huif/exec_instruction
+add wave -noupdate -group Hazard -group Execuute /system_tb/DUT/CPU/DP/HUNIT/rs_exec
+add wave -noupdate -group Hazard -group Execuute /system_tb/DUT/CPU/DP/HUNIT/rt_exec
+add wave -noupdate -group Hazard -group Execuute /system_tb/DUT/CPU/DP/HUNIT/rd_exec
 add wave -noupdate -group Hazard /system_tb/DUT/CPU/DP/huif/flag_lu
 add wave -noupdate -group Hazard /system_tb/DUT/CPU/DP/huif/flag_ju
 add wave -noupdate -group Hazard /system_tb/DUT/CPU/DP/huif/flag_lu_done
 add wave -noupdate -group Hazard /system_tb/DUT/CPU/DP/huif/flag_ju_done
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {7013712 ps} 0}
+WaveRestoreCursors {{Cursor 1} {67438 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 100
@@ -272,4 +281,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {6919974 ps} {7491882 ps}
+WaveRestoreZoom {0 ps} {467 ns}

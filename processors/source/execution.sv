@@ -13,7 +13,7 @@ module execution (
     alu Addstuffshere(aluif);
 
     logic [31:0] branch_addr_calc;
-    logic zero_check, delay;
+    logic zero_check, delay, delay1, delay2;
     logic [17:0] sign_extend_lefttwo;
     logic [31:0] read_data_choose;
     logic [31:0] alu_in_1;
@@ -44,9 +44,10 @@ always_ff @ (posedge CLK, negedge nRST) begin
         exeif.jump_out <= 2'b0;
         exeif.bne_flag_out <= 1'b0;
         delay <= 1'b0;
+        delay1 <= 1'b0;
     end
     else begin
-        if (exeif.ihit || exeif.dhit || (exeif.bne_eq == 1'd1)) begin
+        if (exeif.ihit || exeif.dhit || (exeif.bne_eq == 1'd1 && (~exeif.mem_read_next && ~exeif.mem_write_next))) begin
             exeif.out <= aluif.outport;
             exeif.branch_addr <= (exeif.sign_extend << 2) + exeif.addr_curr4;
             //exeif.z_out <= (exeif.bne_flag == 1'b0) ? aluif.zero : ~aluif.zero;
@@ -70,7 +71,8 @@ always_ff @ (posedge CLK, negedge nRST) begin
             exeif.instruction_next <= exeif.instruction;
             //exeif.load_use_out <= exeif.load_use;
             delay <= exeif.load_use;
-            exeif.load_use_out <= delay;
+            delay1 <= delay;
+            exeif.load_use_out <= delay1;
             
             exeif.jump_use_out <= exeif.jump_use;
             exeif.jump_out <= exeif.jump;
