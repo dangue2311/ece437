@@ -45,7 +45,9 @@ module hazard_unit (
       huif.load_use = 1'b0;
     end
     else begin
-      if (huif.dec_instruction != huif.exec_instruction) begin
+      if ((huif.dec_instruction != huif.exec_instruction) || 
+      ((huif.dec_instruction == huif.exec_instruction) && (huif.fetch_instruction[31:26] == 6'b000100 || huif.fetch_instruction[31:26] == 6'b000101))) begin
+      //if (huif.dec_instruction != 32'b0 && huif.exec_instruction != 32'b0) begin
         if ((huif.fetch_instruction != 32'hffffff && huif.dec_instruction != 32'hffffff) && (huif.fetch_instruction != huif.dec_instruction)) begin 
           if (huif.fetch_instruction[31:26] == 6'b0 && huif.fetch_instruction[5:0] != 6'b0) begin
             if (rd_dec == rs_fetch || rd_dec == rt_fetch || rd_exec == rs_fetch || rd_exec == rt_fetch) begin
@@ -77,12 +79,12 @@ module hazard_unit (
           end
         end
       end
-      if (huif.dec_instruction == 32'h0109082b) begin
+      /*if (huif.dec_instruction == 32'h0109082b) begin
         if (rd_dec == rs_fetch || rd_dec == rt_fetch || rd_exec == rs_fetch || rd_exec == rt_fetch) begin  
           huif.load_use = 1'b1;
           huif.flag_lu = 1'b1;
         end
-      end
+      end */
     end
 
 //BEQ, BNE
