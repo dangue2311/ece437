@@ -20,7 +20,7 @@ module icache (
   icachef_t i_add;
 
   logic ihit, miss;
-  word_t iaddr, imemload;
+  word_t imemload;
 
   assign i_add.tag = dpcif.imemaddr[31:6];
   assign i_add.idx = dpcif.imemaddr[5:2];
@@ -55,6 +55,9 @@ module icache (
   always_ff @(posedge CLK, negedge nRST) begin
     if (~nRST) begin
       cache[15:0] <= '0;
+      cache[i_add.idx].data <= '0;
+      cache[i_add.idx].tag <= '0;
+      cache[i_add.idx].valid <= '0;
     end
     else
       if (ihit) begin
