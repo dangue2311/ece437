@@ -1,10 +1,14 @@
-import cpu_types_pkg::*;
+`include "cpu_types_pkg.vh"
+`include "datapath_cache_if.vh"
+`include "caches_if.vh"
 
 module dcache (
 	input logic CLK, nRST,
 	datapath_cache_if.dcache dcif,
 	caches_if.dcache cif
 );
+
+import cpu_types_pkg::*;
 
 typedef struct packed {
 	//frame1 table
@@ -91,7 +95,6 @@ always_ff @(posedge CLK or negedge nRST) begin
 	end
 end
 
-//Next State Logic
 always_comb begin : NEXT_LOGIC
 	next_state = state;
 	next_row = row;
@@ -141,10 +144,9 @@ always_comb begin : NEXT_LOGIC
 		COUNT : begin
 			if (~cif.dwait) next_state = HALT;
 		end
-	endcase // state
+	endcase 
 end
 
-//Output Logic
 assign dcif.flushed = (state == HALT);
 integer j;
 always_comb begin : OUTPUT_LOGIC
@@ -278,7 +280,7 @@ always_comb begin : OUTPUT_LOGIC
 			cif.daddr = 32'h00003100;
 			cif.dstore = hit_count; 
 		end
-	endcase // state
+	endcase 
 end
 
-endmodule // dcache
+endmodule
