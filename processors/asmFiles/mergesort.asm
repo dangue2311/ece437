@@ -20,9 +20,9 @@ org 0x0000
   ori   $a0, $zero, data
   addu  $a0, $a0, $t0
   or    $s3, $zero, $a0
-  or    $s4, $zero, $a1
-  halt  #$3, $zero, $a1 
+  or    $s4, $zero, $a1 
   jal   insertion_sort
+halt
   or    $a0, $zero, $s1
   or    $a1, $zero, $s2
   or    $a2, $zero, $s3

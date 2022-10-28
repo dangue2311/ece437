@@ -6,7 +6,6 @@
   org   0x0000
   ori   $1,$zero,0xF0
   ori   $2,$zero,0x80
-  halt  #14, $12. $2
   lui   $7,0xdead
   ori   $7,$7,0xbeef
   lw    $3,0($1)
