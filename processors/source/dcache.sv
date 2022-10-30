@@ -1,287 +1,241 @@
 `include "cpu_types_pkg.vh"
-`include "caches_if.vh"
 `include "datapath_cache_if.vh"
+`include "caches_if.vh"
 
 module dcache (
     input logic CLK, nRST,
-    datapath_cache_if.cache dcif,
+    datapath_cache_if dcif,
     caches_if.dcache cif
 );
 
     import cpu_types_pkg::*;
-
-    enum { COMPARE_TAG, ALLOCATE1, ALLOCATE2, WRITE_BACK1, WRITE_BACK2, FLUSH_INIT, FLUSH_WRITE_DATA0, 
-		FLUSH_WRITE_DATA1, FLUSH_SECOND, FLUSH_WRITE2_DATA0, FLUSH_WRITE2_DATA1, FLUSH_FINISH } state, next_state;
-
-    parameter NUM_BLOCKS_PER_SET = 8;
+    parameter BLKS_PER_SET = 8;
     parameter NUM_SETS = 2;
 
-    dcachef_t req;
-    dcache_frame [1:0][7:0] frames, next_frames;
-    logic lru, next_lru;
-	logic [4:0] index, next_index;
-    word_t hit_count, next_hit_count;
-    word_t miss_count, next_miss_count;
-    logic miss_hit_flag, next_miss_hit_flag;
+    enum { COMPARE_TAG, ALL1, ALL2, WB1, WB2, FLUSH_INIT, FLUSH1, 
+		FLUSH2, FLUSH3, FLUSH4, FLUSH5, FINAL_FLUSH } state, n_state;
+
+    word_t hit_cnt, n_hit_cnt;
+    word_t miss_count, n_miss_count;
+    logic miss_hit_flag, n_miss_hit_flag, lru, n_lru;
+	logic [4:0] ind, n_ind;
+    dcachef_t request;
+    dcache_frame [1:0][7:0] frames, n_frames;
 
     always_ff @(posedge CLK, negedge nRST) begin
-        if (!nRST) begin
+        if (~nRST) begin
             frames <= '0;
             state <= COMPARE_TAG;
+			ind <= '0;
             lru <= 0;
-			index <= '0;
-            hit_count <= '0;
-            miss_count <= '0;
+            hit_cnt <= '0;
             miss_hit_flag <= 0;
+            miss_count <= '0;
         end else begin
-            frames <= next_frames;
-            state <= next_state;
-            lru <= next_lru;
-			index <= next_index;
-            hit_count <= next_hit_count;
-            miss_count <= next_miss_count;
-            miss_hit_flag <= next_miss_hit_flag;
+            frames <= n_frames;
+            state <= n_state;
+			ind <= n_ind;
+            lru <= n_lru;
+            miss_count <= n_miss_count;
+            hit_cnt <= n_hit_cnt;
+            miss_hit_flag <= n_miss_hit_flag;
         end
     end
 
-    assign req = dcif.dmemaddr;
 
     always_comb begin
-        next_state = state;
-        next_frames = frames;
-        next_lru = lru;
+        n_state = state;
+        n_frames = frames;
+        n_lru = lru;
+        n_miss_count = miss_count;
         dcif.dhit = 0;
         dcif.dmemload = 32'h0;
         cif.dREN = '0;
         cif.dWEN = '0;
         cif.daddr = '0;
+		n_ind = ind; 
+		dcif.flushed = 1'b0;
+        n_miss_hit_flag = miss_hit_flag;
+        n_hit_cnt = hit_cnt;
         cif.dstore = '0;
-		next_index = index; 
-		dcif.flushed = 0;
-        next_hit_count = hit_count;
-        next_miss_count = miss_count;
-        next_miss_hit_flag = miss_hit_flag;
 
         casez(state)
             COMPARE_TAG: begin
                 if(dcif.halt == 1) begin
-                    next_state = FLUSH_INIT;
-                    next_index = 0;
+                    n_state = FLUSH_INIT;
+                    n_ind = 0;
                 end else if (!dcif.dmemREN && !dcif.dmemWEN) begin
-                    // No request
-                    next_state = COMPARE_TAG;
-
-                end else if(frames[0][req.idx].tag == req.tag && frames[0][req.idx].valid) begin
-                    // Hit in set 0
+                    n_state = COMPARE_TAG;
+                end else if(frames[0][request.idx].tag == request.tag && frames[0][request.idx].valid) begin
                     dcif.dhit = 1;
-                    dcif.dmemload = frames[0][req.idx].data[req.blkoff];
-
+                    dcif.dmemload = frames[0][request.idx].data[request.blkoff];
                     if (miss_hit_flag && dcif.ihit) begin
-                        // Not initial hit
-                        next_miss_hit_flag = 0;
+                        n_miss_hit_flag = 0;
                     end else if (dcif.ihit) begin
-                        next_hit_count = hit_count + 1;
+                        n_hit_cnt = hit_cnt + 1;
                     end
-
                     if (dcif.dmemWEN) begin
                         dcif.dmemload = dcif.dmemstore;
-                        next_frames[0][req.idx].data[req.blkoff] = dcif.dmemstore;
-                        next_frames[0][req.idx].dirty = 1;
+                        n_frames[0][request.idx].data[request.blkoff] = dcif.dmemstore;
+                        n_frames[0][request.idx].dirty = 1;
                     end
-                end else if (frames[1][req.idx].tag == req.tag && frames[1][req.idx].valid) begin
-                    // Hit in set 1
+                end else if (frames[1][request.idx].tag == request.tag && frames[1][request.idx].valid) begin
                     dcif.dhit = 1;
-                    dcif.dmemload = frames[1][req.idx].data[req.blkoff];
-
+                    dcif.dmemload = frames[1][request.idx].data[request.blkoff];
                     if (miss_hit_flag && dcif.ihit) begin
-                        // Not initial hit
-                        next_miss_hit_flag = 0;
+                        n_miss_hit_flag = 0;
                     end else if (dcif.ihit) begin
-                        next_hit_count = hit_count + 1;
+                        n_hit_cnt = hit_cnt + 1;
                     end
-
                     if (dcif.dmemWEN) begin
                         dcif.dmemload = dcif.dmemstore;
-                        next_frames[1][req.idx].data[req.blkoff] = dcif.dmemstore;
-                        next_frames[1][req.idx].dirty = 1;
+                        n_frames[1][request.idx].data[request.blkoff] = dcif.dmemstore;
+                        n_frames[1][request.idx].dirty = 1;
                     end
-				
                 end else begin
-                    next_state = frames[lru][req.idx].dirty ? WRITE_BACK1 : ALLOCATE1;
+                    n_state = frames[lru][request.idx].dirty ? WB1 : ALL1;
                 end
             end
 
-            ALLOCATE1: begin
+            ALL1: begin
 			 if(cif.dwait) begin
-                    // Access memory
                     cif.dREN = 1;
-                    cif.daddr = {req[31:3], 1'b0, req[1:0]}; //req;
-                    next_state = ALLOCATE1;
-
+                    cif.daddr = {request[31:3], 1'b0, request[1:0]};
+                    n_state = ALL1;
                 end else begin
-                    // Read hit in memory
-                    next_frames[lru][req.idx].data[0] = cif.dload;
+                    n_frames[lru][request.idx].data[0] = cif.dload;
                     cif.dREN = 1;
-                    cif.daddr =  {req[31:3], 1'b0, req[1:0]};
-
-                    // Go to allocate second word
-                    next_state = ALLOCATE2;
+                    cif.daddr =  {request[31:3], 1'b0, request[1:0]};
+                    n_state = ALL2;
                 end
             end
 
-            ALLOCATE2: begin
+            ALL2: begin
 				 if(cif.dwait) begin
-                    // Access memory
                     cif.dREN = 1;
-                    cif.daddr = {req[31:3], 1'b1, req[1:0]}; //req + 32'd4;
-                    next_state = ALLOCATE2;
+                    cif.daddr = {request[31:3], 1'b1, request[1:0]}; //request + 32'd4;
+                    n_state = ALL2;
 	
                 end else begin
-                    // Read hit in memory
-                    // Update cache
-                    next_frames[lru][req.idx].valid = 1;
-                    next_frames[lru][req.idx].dirty = 0;
-                    next_frames[lru][req.idx].tag = req.tag;
-                    next_frames[lru][req.idx].data[1] = cif.dload;
-
-                    //dcif.dhit = 1;
+                    n_frames[lru][request.idx].valid = 1;
+                    n_frames[lru][request.idx].dirty = 0;
+                    n_frames[lru][request.idx].tag = request.tag;
+                    n_frames[lru][request.idx].data[1] = cif.dload;
                     cif.dREN = 1;
-                    cif.daddr =  {req[31:3], 1'b1, req[1:0]};
-
-                    //dcif.dmemload = frames[lru][req.idx].data[0];
-
-                    // Update replacement info
-                    next_lru = !lru;
-
-                     // Count a miss
-                     next_miss_hit_flag = 1;
-                     next_miss_count = miss_count + 1;
-
-                    // Since mem is ready, go to COMPARE_TAG
-                    next_state = COMPARE_TAG;
+                    cif.daddr =  {request[31:3], 1'b1, request[1:0]};
+                    n_lru = !lru;
+                    n_miss_hit_flag = 1;
+                    n_miss_count = miss_count + 1;
+                    n_state = COMPARE_TAG;
                 end
             end
 
-            WRITE_BACK1: begin
-                cif.dstore = frames[lru][req.idx].data[0];
+            WB1: begin
+                cif.dstore = frames[lru][request.idx].data[0];
 				if(cif.dwait) begin
-                    // Access memory
                     cif.dWEN = 1;
-                    cif.daddr = {frames[lru][req.idx].tag, req.idx, 1'b0, 2'b00}; // req
+                    cif.daddr = {frames[lru][request.idx].tag, request.idx, 1'b0, 2'b00}; // request
 
 				
                 end else begin
-                    // Write hit in memory
-                    next_state = WRITE_BACK2;
+                    n_state = WB2;
                     cif.dWEN = 1;
-                    cif.daddr =  {frames[lru][req.idx].tag, req.idx, 1'b0, 2'b00}; //{req[31:3], 1'b0, req[1:0]};
+                    cif.daddr =  {frames[lru][request.idx].tag, request.idx, 1'b0, 2'b00}; //{request[31:3], 1'b0, request[1:0]};
                 end
             end
 
-            WRITE_BACK2: begin
-                cif.dstore = frames[lru][req.idx].data[1];
+            WB2: begin
+                cif.dstore = frames[lru][request.idx].data[1];
 				 if(cif.dwait) begin
-                    // Access memory
                     cif.dWEN = 1;
-                    cif.daddr = {frames[lru][req.idx].tag, req.idx, 1'b1, 2'b00}; //{req[31:3], 1'b1, req[1:0]}; //req + 32'd4;
+                    cif.daddr = {frames[lru][request.idx].tag, request.idx, 1'b1, 2'b00}; //{request[31:3], 1'b1, request[1:0]}; //request + 32'd4;
 
                 end else begin
-                    // Write hit in memory
                     cif.dWEN = 1;
-                    cif.daddr =  {frames[lru][req.idx].tag, req.idx, 1'b1, 2'b00}; //{req[31:3], 1'b0, req[1:0]};
-                    next_state = ALLOCATE1;
+                    cif.daddr =  {frames[lru][request.idx].tag, request.idx, 1'b1, 2'b00}; //{request[31:3], 1'b0, request[1:0]};
+                    n_state = ALL1;
                 end
             end
 
 			FLUSH_INIT: begin
-				if (index == 8) begin
-					next_state = FLUSH_SECOND;
-					next_index = 0;
-				end else if(frames[0][index[2:0]].dirty) begin
-					next_state = FLUSH_WRITE_DATA0; 
+				if (ind == 8) begin
+					n_state = FLUSH3;
+					n_ind = 0;
+				end else if(frames[0][ind[2:0]].dirty) begin
+					n_state = FLUSH1; 
 				end	else begin
-					next_index = index + 1;
-					next_state = FLUSH_INIT;
+					n_ind = ind + 1;
+					n_state = FLUSH_INIT;
 				end						
 			end
 
-			FLUSH_WRITE_DATA0:begin
+			FLUSH1:begin
                 cif.dWEN = 1;
-                cif.daddr = {frames[0][index[2:0]].tag, index[2:0], 1'b0, 2'b00};
-                cif.dstore = frames[0][index[2:0]].data[0];
-
+                cif.daddr = {frames[0][ind[2:0]].tag, ind[2:0], 1'b0, 2'b00};
+                cif.dstore = frames[0][ind[2:0]].data[0];
                 if(cif.dwait) begin
-
-                    //cif.dstore = frames[0][index[2:0]].data[0];
                 end else begin
-                    next_state =  FLUSH_WRITE_DATA1; 
+                    n_state =  FLUSH2; 
                 end
 			end  
 
-			FLUSH_WRITE_DATA1:begin
+			FLUSH2:begin
                 cif.dWEN = 1;
-                cif.daddr = {frames[0][index[2:0]].tag, index[2:0], 1'b1, 2'b00};
-                cif.dstore = frames[0][index[2:0]].data[1];
+                cif.daddr = {frames[0][ind[2:0]].tag, ind[2:0], 1'b1, 2'b00};
+                cif.dstore = frames[0][ind[2:0]].data[1];
                 if(cif.dwait) begin
-
-                    //cif.dstore = frames[0][index[2:0]].data[1];
                 end else begin
-                    next_state =  FLUSH_INIT; 
-					next_index = index + 1;
+                    n_state =  FLUSH_INIT; 
+					n_ind = ind + 1;
                 end
 			end 
  		
-			FLUSH_SECOND:begin
-				if (index == 8) begin
-					next_state = FLUSH_FINISH;
-					next_index = 0; 
-				end else if(frames[1][index[2:0]].dirty) begin
-					next_state = FLUSH_WRITE2_DATA0; 
+			FLUSH3:begin
+				if (ind == 8) begin
+					n_state = FINAL_FLUSH;
+					n_ind = 0; 
+				end else if(frames[1][ind[2:0]].dirty) begin
+					n_state = FLUSH4; 
 				end	else begin
-					next_index = index + 1; 
-					next_state = FLUSH_SECOND; 
+					n_ind = ind + 1; 
+					n_state = FLUSH3; 
 				end						
 			end
 
-			FLUSH_WRITE2_DATA0: begin
+			FLUSH4: begin
                 cif.dWEN = 1;
-                cif.daddr = {frames[1][index[2:0]].tag, index[2:0], 1'b0, 2'b00};
-                cif.dstore = frames[1][index[2:0]].data[0];
+                cif.daddr = {frames[1][ind[2:0]].tag, ind[2:0], 1'b0, 2'b00};
+                cif.dstore = frames[1][ind[2:0]].data[0];
                 if(cif.dwait) begin
-
-
                 end else begin
-                    next_state =  FLUSH_WRITE2_DATA1; 
+                    n_state =  FLUSH5; 
                 end
 			end
 			
-			FLUSH_WRITE2_DATA1: begin
+			FLUSH5: begin
                 cif.dWEN = 1;
-                cif.daddr = {frames[1][index[2:0]].tag, index[2:0], 1'b1, 2'b00};
-                cif.dstore = frames[1][index[2:0]].data[1];
+                cif.daddr = {frames[1][ind[2:0]].tag, ind[2:0], 1'b1, 2'b00};
+                cif.dstore = frames[1][ind[2:0]].data[1];
                 if(cif.dwait) begin
-
-
                 end else begin	
-					next_index = index + 1; 
-                    next_state =  FLUSH_SECOND; 
+					n_ind = ind + 1; 
+                    n_state =  FLUSH3; 
                 end
 			end 
  	
-			FLUSH_FINISH: begin
+			FINAL_FLUSH: begin
                 cif.dWEN = 1;
                 cif.daddr = 32'h00003100;
-                cif.dstore = hit_count;// - miss_count;
+                cif.dstore = hit_cnt;
                 if(cif.dwait) begin
-
-
                 end else begin
                     dcif.flushed = 1;
                 end
 
 			end 
-				
         endcase
     end
+    
+    assign request = dcif.dmemaddr;
 
 endmodule

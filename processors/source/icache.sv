@@ -1,12 +1,11 @@
 //INSTRUCTION WRITE BACK
-
 `include "cpu_types_pkg.vh"
 `include "datapath_cache_if.vh"
 `include "caches_if.vh"
 
 module icache (
   input logic CLK, nRST,
-  datapath_cache_if dpcif,
+  datapath_cache_if dcif,
   caches_if.icache memcif
 );
 
@@ -22,33 +21,35 @@ module icache (
   logic ihit, miss;
   word_t imemload;
 
-  assign i_add.tag = dpcif.imemaddr[31:6];
-  assign i_add.idx = dpcif.imemaddr[5:2];
-  assign i_add.bytoff = dpcif.imemaddr[1:0];
-
+  assign i_add.tag = dcif.imemaddr[31:6];
+  assign i_add.idx = dcif.imemaddr[5:2];
+  assign i_add.bytoff = dcif.imemaddr[1:0];
 
   always_comb begin
-  if(dpcif.halt) begin
-    miss = 0;
-    dpcif.ihit = 0;
-    dpcif.imemload = 0;
-  end
-  else if ((dpcif.imemREN == 1'b1) && (dpcif.dmemREN == 0) && (dpcif.dmemWEN == 0)) begin
-      if ((cache[i_add.idx].tag == i_add.tag) && cache[i_add.idx].valid) begin
-        miss = 1'b0;
-        dpcif.ihit = 1'b1;
-        dpcif.imemload = cache[i_add.idx].data;
-      end
-      else begin
-        miss = 1'b1;
-        dpcif.ihit = 1'b0;
-        dpcif.imemload = 32'b0;
-      end
+    dcif.ihit = 1'b0;
+    miss = 1'b1;
+    dcif.imemload = 32'b0;
+    if(dcif.halt) begin
+      miss = 1'b0;
+      dcif.ihit = 1'b0;
+      dcif.imemload = 32'b0;
+    end
+    else if ((dcif.imemREN == 1'b1) && (dcif.dmemREN == 0) && (dcif.dmemWEN == 0)) begin
+        if ((cache[i_add.idx].tag == i_add.tag) && cache[i_add.idx].valid) begin
+          miss = 1'b0;
+          dcif.ihit = 1'b1;
+          dcif.imemload = cache[i_add.idx].data;
+        end
+        else begin
+          miss = 1'b1;
+          dcif.ihit = 1'b0;
+          dcif.imemload = 32'b0;
+        end
     end
     else begin
-      miss = 1'b0;
-      dpcif.ihit = 1'b0;
-      dpcif.imemload = 32'b0;
+        miss = 1'b0;
+        dcif.ihit = 1'b0;
+        dcif.imemload = 32'b0;
     end
   end
 
@@ -69,6 +70,6 @@ module icache (
 
   assign ihit = ~memcif.iwait;
   assign imemload = memcif.iload;
-  assign memcif.iREN = miss ? dpcif.imemREN : '0;
-  assign memcif.iaddr = miss ? dpcif.imemaddr: '0;
+  assign memcif.iREN = miss ? dcif.imemREN : '0;
+  assign memcif.iaddr = miss ? dcif.imemaddr: '0;
 endmodule
