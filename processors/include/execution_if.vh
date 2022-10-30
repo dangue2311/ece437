@@ -31,12 +31,13 @@ interface execution_if;
   logic[1:0] forward_a, forward_b;
   word_t    forward_alu, forward_mem;
   logic[1:0] jump, jump_out, ALUSrc;
+  logic[27:0] shift_inst;
 
   // alu file ports
   modport  execution(
     input   ihit, dhit, halt, load_use, jump_use,
             bne_flag, ALUSrc, extend_immi,
-            jr_flag, j_jal_flag, mem_write, mem_read,
+            shift_inst, jr_flag, j_jal_flag, mem_write, mem_read,
             lui_flag, jal_flag, memtoreg, 
             aluop, j_jal_addr, bne_eq,
             addr_curr4, read_dat1, read_dat2, 

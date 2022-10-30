@@ -46,8 +46,11 @@ module hazard_unit (
     end
     else begin
       if ((huif.dec_instruction != huif.exec_instruction) || 
+      ((huif.dec_instruction == huif.exec_instruction) && 
+      //(huif.mem_instruction[31:26] == 6'b000100 || huif.mem_instruction[31:26] == 6'b000101 ||
+      //huif.mem_instruction[31:26] == 6'b000010 || huif.mem_instruction[31:26] == 6'b000011 ||
+      (huif.mem_instruction[31:26] == 6'b0 && huif.mem_instruction[5:0] == 6'b001000)) ||
       ((huif.dec_instruction == huif.exec_instruction) && (huif.fetch_instruction[31:26] == 6'b000100 || huif.fetch_instruction[31:26] == 6'b000101))) begin
-      //if (huif.dec_instruction != 32'b0 && huif.exec_instruction != 32'b0) begin
         if ((huif.fetch_instruction != 32'hffffff && huif.dec_instruction != 32'hffffff) && (huif.fetch_instruction != huif.dec_instruction)) begin 
           if (huif.fetch_instruction[31:26] == 6'b0 && huif.fetch_instruction[5:0] != 6'b0) begin
             if (rd_dec == rs_fetch || rd_dec == rt_fetch || rd_exec == rs_fetch || rd_exec == rt_fetch) begin

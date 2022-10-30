@@ -13,7 +13,7 @@ interface instruction_fetch_if;
 
   logic [1:0]  jump_sig;
   logic     ihit, dhit, jump_use, load_use;
-  word_t    PC, pp4, new_PC, cache_in, instruction, jump_add, jump_jr;
+  word_t    PC, pp4, new_PC, cache_in, instruction, jump_add, jump_jr, addr_curr;
 
   // register file ports
 
@@ -22,7 +22,7 @@ interface instruction_fetch_if;
   //new_PC from jump/branch select logic
   modport iftch (
     input   ihit, dhit, new_PC, cache_in, jump_use, load_use, jump_sig, jump_add, jump_jr,
-    output  PC, pp4, instruction
+    output  PC, pp4, instruction, addr_curr
   );
   // register file tb
   modport tb (

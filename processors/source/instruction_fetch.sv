@@ -48,6 +48,7 @@ module instruction_fetch (
       ifif.instruction <= '0;
       ifif.pp4 <= '0;
       halt_reg <= 1'b0;
+      ifif.addr_curr <= 1'b0;
     end
 
     else begin //If ihit or dhit, latch PC values
@@ -58,12 +59,15 @@ module instruction_fetch (
       else begin
         if (ifif.dhit && ~ifif.load_use && ~ifif.jump_use) begin 
           ifif.instruction <= 32'b0;
+          ifif.addr_curr <= ifif.PC;
         end
         else if (ifif.ihit && ~ifif.load_use && ~ifif.jump_use) begin //ifif.dhit
           ifif.instruction <= ifif.cache_in;
+          ifif.addr_curr <= ifif.PC;
         end
         else if (ifif.jump_use && ~ifif.load_use) begin
           ifif.instruction <= 32'b0;
+          ifif.addr_curr <= ifif.PC;
         end
         if (ifif.cache_in[31:26] == 6'b000010) begin
           ifif.PC <= {next_pp4[31:28],ifif.cache_in[25:0],2'b0};

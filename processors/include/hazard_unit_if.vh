@@ -13,12 +13,12 @@ interface hazard_unit_if;
 
   // signals
   logic          load_use, jump_use;
-  word_t         fetch_instruction, dec_instruction, exec_instruction;
+  word_t         fetch_instruction, dec_instruction, exec_instruction, mem_instruction;
   logic          flag_lu, flag_ju, flag_lu_done, flag_ju_done;     
 
   // port
   modport hu (
-    input   fetch_instruction, dec_instruction, exec_instruction, flag_lu_done, flag_ju_done,
+    input   fetch_instruction, dec_instruction, exec_instruction, flag_lu_done, flag_ju_done, mem_instruction,
     output  load_use, jump_use, flag_lu, flag_ju
   );
 

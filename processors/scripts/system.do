@@ -17,18 +17,19 @@ add wave -noupdate -group Datapath /system_tb/DUT/CPU/DP/caif/flushed
 add wave -noupdate -group Datapath /system_tb/DUT/CPU/DP/caif/dmemload
 add wave -noupdate -group Datapath /system_tb/DUT/CPU/DP/caif/dmemstore
 add wave -noupdate -group Datapath /system_tb/DUT/CPU/DP/caif/dmemaddr
-add wave -noupdate -group {instruction fetch} /system_tb/DUT/CPU/DP/ifif/jump_sig
-add wave -noupdate -group {instruction fetch} /system_tb/DUT/CPU/DP/ifif/ihit
-add wave -noupdate -group {instruction fetch} /system_tb/DUT/CPU/DP/ifif/dhit
-add wave -noupdate -group {instruction fetch} /system_tb/DUT/CPU/DP/ifif/jump_use
-add wave -noupdate -group {instruction fetch} /system_tb/DUT/CPU/DP/ifif/load_use
-add wave -noupdate -group {instruction fetch} /system_tb/DUT/CPU/DP/ifif/PC
-add wave -noupdate -group {instruction fetch} /system_tb/DUT/CPU/DP/ifif/pp4
-add wave -noupdate -group {instruction fetch} /system_tb/DUT/CPU/DP/ifif/new_PC
-add wave -noupdate -group {instruction fetch} /system_tb/DUT/CPU/DP/ifif/cache_in
-add wave -noupdate -group {instruction fetch} /system_tb/DUT/CPU/DP/ifif/instruction
-add wave -noupdate -group {instruction fetch} /system_tb/DUT/CPU/DP/ifif/jump_add
-add wave -noupdate -group {instruction fetch} /system_tb/DUT/CPU/DP/ifif/jump_jr
+add wave -noupdate -expand -group {instruction fetch} /system_tb/DUT/CPU/DP/ifif/jump_sig
+add wave -noupdate -expand -group {instruction fetch} /system_tb/DUT/CPU/DP/ifif/ihit
+add wave -noupdate -expand -group {instruction fetch} /system_tb/DUT/CPU/DP/ifif/dhit
+add wave -noupdate -expand -group {instruction fetch} /system_tb/DUT/CPU/DP/ifif/jump_use
+add wave -noupdate -expand -group {instruction fetch} /system_tb/DUT/CPU/DP/ifif/load_use
+add wave -noupdate -expand -group {instruction fetch} /system_tb/DUT/CPU/DP/ifif/PC
+add wave -noupdate -expand -group {instruction fetch} /system_tb/DUT/CPU/DP/ifif/pp4
+add wave -noupdate -expand -group {instruction fetch} /system_tb/DUT/CPU/DP/ifif/new_PC
+add wave -noupdate -expand -group {instruction fetch} /system_tb/DUT/CPU/DP/ifif/cache_in
+add wave -noupdate -expand -group {instruction fetch} /system_tb/DUT/CPU/DP/ifif/instruction
+add wave -noupdate -expand -group {instruction fetch} /system_tb/DUT/CPU/DP/ifif/addr_curr
+add wave -noupdate -expand -group {instruction fetch} /system_tb/DUT/CPU/DP/ifif/jump_add
+add wave -noupdate -expand -group {instruction fetch} /system_tb/DUT/CPU/DP/ifif/jump_jr
 add wave -noupdate -group {Program Counter} /system_tb/DUT/CPU/DP/IFETCH/pcif/jump_sig
 add wave -noupdate -group {Program Counter} /system_tb/DUT/CPU/DP/IFETCH/pcif/ihit
 add wave -noupdate -group {Program Counter} /system_tb/DUT/CPU/DP/IFETCH/pcif/dhit

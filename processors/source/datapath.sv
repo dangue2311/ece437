@@ -54,6 +54,7 @@ module datapath (
     ifif.jump_jr = deif.JumpJr_inst;
 
     //Assign Decode inputs
+    deif.inst_addr = ifif.addr_curr;
     deif.bne_eq = huif.jump_use;
   	deif.ihit = caif.ihit;
     deif.dhit = caif.dhit;
@@ -72,6 +73,7 @@ module datapath (
     huif.fetch_instruction = ifif.instruction;
     huif.dec_instruction = deif.inst_out;
     huif.exec_instruction = exeif.instruction_next;
+    huif.mem_instruction = memif.instruction_next;
 
     //Assign Forwarding Unit inputs
     //CHECK THIS SHIT TO MAKE SURE INPUTS ARE RIGHT
@@ -83,6 +85,7 @@ module datapath (
 
     //Assign Execution inputs
     //control signals
+    exeif.shift_inst = deif. shift_inst;
     exeif.bne_eq = huif.jump_use;
     exeif.ihit = caif.ihit;
     exeif.dhit = caif.dhit;
