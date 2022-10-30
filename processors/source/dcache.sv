@@ -10,29 +10,6 @@ module dcache (
 
     import cpu_types_pkg::*;
 
-//    // dcache format type
-//    typedef struct packed {
-//        logic [DTAG_W-1:0]  tag;
-//        logic [DIDX_W-1:0]  idx;
-//        logic [DBLK_W-1:0]  blkoff;
-//        logic [DBYT_W-1:0]  bytoff;
-//    } dcachef_t;
-
-//    // dcache format widths
-//    parameter DTAG_W    = 26;
-//    parameter DIDX_W    = 3;
-//    parameter DBLK_W    = 1;
-//    parameter DBYT_W    = 2;
-//    parameter DWAY_ASS  = 2;
-
-//    //dcache frame
-//    typedef struct packed {
-//        logic valid;
-//        logic dirty;
-//        logic [DTAG_W - 1:0] tag;
-//        word_t [1:0] data;
-//    } dcache_frame;
-
     enum { COMPARE_TAG, ALLOCATE1, ALLOCATE2, WRITE_BACK1, WRITE_BACK2, FLUSH_INIT, FLUSH_WRITE_DATA0, 
 		FLUSH_WRITE_DATA1, FLUSH_SECOND, FLUSH_WRITE2_DATA0, FLUSH_WRITE2_DATA1, FLUSH_FINISH } state, next_state;
 
@@ -74,7 +51,7 @@ module dcache (
         next_frames = frames;
         next_lru = lru;
         dcif.dhit = 0;
-        dcif.dmemload = 32'hBAD1BAD1;
+        dcif.dmemload = 32'h0;
         cif.dREN = '0;
         cif.dWEN = '0;
         cif.daddr = '0;
