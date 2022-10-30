@@ -6,3 +6,4 @@
 *testasm.diff
 *testasm.log
 Makefile
+/scripts/system.do

@@ -50,6 +50,7 @@ always_ff @ (posedge CLK, negedge nRST) begin
         if (exeif.ihit || exeif.dhit || (exeif.bne_eq == 1'd1 && (~exeif.mem_read_next && ~exeif.mem_write_next))) begin
             exeif.out <= aluif.outport;
             exeif.branch_addr <= (exeif.sign_extend << 2) + exeif.addr_curr4;
+            //(exeif.sign_extend << 2) + exeif.addr_curr4;
             //exeif.z_out <= (exeif.bne_flag == 1'b0) ? aluif.zero : ~aluif.zero;
             //exeif.z_out <= zero_check;
             exeif.z_out <= aluif.zero;
@@ -84,7 +85,8 @@ end
 always_comb begin
 
 //    sign_extend_lefttwo = exeif.sign_extend << 2;
-    branch_addr_calc = (exeif.sign_extend << 2) + exeif.addr_curr4;
+    branch_addr_calc = exeif.sign_extend<<2;
+    //(exeif.sign_extend << 2) + exeif.addr_curr4;
 
     if (exeif.bne_flag == 1'b0)
         zero_check = aluif.zero;

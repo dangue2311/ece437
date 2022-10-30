@@ -26,6 +26,7 @@ module decode (
   //New Signals
   word_t next_SignExt, next_ZeroExt, next_JumpAddr, next_LowerZero, next_init_write_reg, pp4_out_clk;
   logic next_out_WEN;
+  logic [27:0] next_shift_inst;
 
   //Assign variables (assuming we want just input values) 
   assign next_SignExt = (deif.instruction[15] == 1) ? {16'hffff,deif.instruction[15:0]} : {16'h0000,deif.instruction[15:0]};
@@ -33,6 +34,7 @@ module decode (
   assign next_JumpAddr = pp4_out_clk;
   //assign next_JumpAddr = {deif.pp4_in[31:28],deif.instruction[25:0],2'b00};
   assign next_LowerZero = {deif.instruction[15:0], 16'h0000};
+  assign next_shift_inst = deif.instruction[25:0] << 2;
   
   //Assign CUIF Signals
   assign cuif.ihit = deif.ihit;
@@ -90,6 +92,7 @@ module decode (
       deif.pp4_out <= 0;
       deif.inst_out <= 0;
       deif.jump_use_out <= 0;
+      deif.shift_inst <= 0;
     end
 /*
     else if(deif.load_use) begin
@@ -158,9 +161,10 @@ module decode (
         deif.rd <= cuif.rd;
         deif.init_write_reg <= next_init_write_reg;
         deif.out_WEN <= next_out_WEN;
-        deif.pp4_out <= deif.pp4_in - 4;
+        deif.pp4_out <= deif.inst_addr + 4;
         deif.inst_out <= deif.instruction;
         deif.jump_use_out <= deif.jump_use;
+        deif.shift_inst <= next_shift_inst;
       //end
       /*
       else begin
