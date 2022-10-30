@@ -42,13 +42,13 @@ module icache (
       else begin
         miss = 1'b1;
         dpcif.ihit = 1'b0;
-        dpcif.imemload = imemload;
+        dpcif.imemload = 32'b0;
       end
     end
     else begin
       miss = 1'b0;
       dpcif.ihit = 1'b0;
-      dpcif.imemload = 1'b0;
+      dpcif.imemload = 32'b0;
     end
   end
 
