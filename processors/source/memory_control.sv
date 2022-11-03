@@ -72,8 +72,18 @@ always_comb begin
 			ccif.ccwait[1] = 1'b1;
 			ccif.ccinv[1] = 1'b1;
 		end
-		else if (ccif.dREN[1]||ccif.dWEN[1]||ccif.ccwrite[1]) begin
+		else if (ccif.dREN[1]||ccif.dWEN[1]) begin
 			prio_hold = 1'b1;
+			n_state = setup;
+			ccif.ccsnoopaddr[0] = ccif.daddr[1];
+			ccif.ccwait[0] = 1'b1;
+		end
+		else if (ccif.ccwrite[1]) begin
+			prio_hold = 1'b1;
+			n_state = invalidate;
+			ccif.ccsnoopaddr[0] = ccif.daddr[1];
+			ccif.ccinv[0] = 1'b1;
+			ccif.ccinv[0] = 1'b1;
 		end
 		else if (ccif.iREN[0]) begin
 			prio_hold = 1'b0;
@@ -99,8 +109,19 @@ always_comb begin
 			ccif.ccinv[0] = 1'b1;
 			ccif.ccinv[0] = 1'b1;
 		end
-		else if (ccif.dREN[0]||ccif.dWEN[0]||ccif.ccwrite[0]) begin
+		else if (ccif.dREN[0]||ccif.dWEN[0]) begin
 			prio_hold = 1'b0;
+			n_state = setup;
+			ccif.ccsnoopaddr[1] = ccif.daddr[0];
+			ccif.iwait[1] = 1'b1;
+			ccif.ccwait[1] = 1'b1;		
+		end
+		else if (ccif.ccwrite[0]) begin
+			prio_hold = 1'b0;
+			n_state = invalidate;
+			ccif.ccsnoopaddr[1] = ccif.daddr[0];
+			ccif.ccwait[1] = 1'b1;
+			ccif.ccinv[1] = 1'b1;
 		end
 		else if (ccif.iREN[1]) begin
 			prio_hold = 1'b1;
