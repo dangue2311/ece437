@@ -75,7 +75,7 @@ module memory_control_tb;
   	ccif.ramstate = crif.ramstate;
   	ccif.ramload = crif.ramload;   
 	end
-	
+	/*
 	task automatic dump_memory();
     string filename = "memcpu.hex";
     int memfd;
@@ -115,8 +115,82 @@ module memory_control_tb;
       $fclose(memfd);
       $display("Finished memory dump.");
     end
-  endtask
+  endtask */
 
+	initial begin
+		nRST = 1'b0;
+
+		cif0.iREN = 1'b0;
+		cif0.dREN = 1'b0;
+		cif0.dWEN = 1'b0;
+		cif0.dstore = 32'b0;
+		cif0.iaddr = 32'b0;
+		cif0.daddr = 32'b0;
+		cif0.ccwrite = 1'b0;
+		cif0.cctrans = 1'b0;
+
+		cif1.iREN = 1'b0;
+		cif1.dREN = 1'b0;
+		cif1.dWEN = 1'b0;
+		cif1.dstore = 32'b0;
+		cif1.iaddr = 32'b0;
+		cif1.daddr = 32'b0;
+		cif1.ccwrite = 1'b0;
+		cif1.cctrans = 1'b0;
+		repeat (1) @(posedge CLK);
+		nRST = 1'b1;
+
+		repeat (4) @(posedge CLK);
+		cif0.iREN = 1'b1;
+		cif1.iREN = 1'b1;
+		cif0.iaddr = 32'b0;
+		cif1.iaddr = 32'b0;
+		repeat (8) @(posedge CLK);
+		cif0.iREN = 1'b0;
+		repeat (8) @(posedge CLK);
+		cif1.iREN = 1'b0;
+		repeat (2) @(posedge CLK);
+
+		cif0.ccwrite = 1'b1;
+		cif0.daddr = 32'habcd1234;
+		repeat (2) @(posedge CLK);
+		cif0.ccwrite = 1'b0;
+		cif0.daddr = 32'b0;
+		repeat (2) @(posedge CLK);
+
+		cif1.dWEN = 1'b1;
+		cif1.daddr = 32'hf0;
+		cif1.dstore = 32'h89;
+		repeat (8) @(posedge CLK);	
+		cif1.dWEN = 1'b0;
+		cif1.daddr = 32'b0;
+		cif1.dstore = 32'b0;
+		repeat (2) @(posedge CLK);	
+
+		cif0.dREN = 1'b1;
+		cif0.daddr = 32'hff0;
+		repeat (8) @(posedge CLK);
+		cif0.dREN = 1'b0;
+		cif0.daddr = 32'h0;
+		repeat (2) @(posedge CLK);
+
+		cif1.dREN = 1'b1;
+		cif1.daddr = 32'h90;
+		cif0.cctrans = 1'b1;
+		cif0.dstore = 32'hbeefbeef;
+		repeat (8) @(posedge CLK);
+		cif1.dREN = 1'b0;
+		cif1.daddr = 32'b0;
+		cif0.cctrans = 1'b0;
+		cif0.dstore = 32'b0;
+		repeat (2) @(posedge CLK);
+
+		//dump_memory();
+
+		$finish;
+	end
+
+/*
 	initial begin
 		//set everything to 0
 		nRST = 1'b0;
@@ -173,5 +247,6 @@ module memory_control_tb;
 		
 		$finish;
 	end
+	*/
 
 endmodule
