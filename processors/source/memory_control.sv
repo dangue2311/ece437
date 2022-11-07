@@ -22,6 +22,7 @@ module memory_control (
 
 // type import
 import cpu_types_pkg::*;
+/*
 
 enum {idle_0, idle_1, imemfetch, ifetched, dfetched, invalidate,
 setup, cache_to_cache_1, cache_to_cache_2, mem_to_cache, 
@@ -271,7 +272,8 @@ end
 
 
 endmodule
-/*
+*/
+
 	always_comb begin //dwait & iwait 
 		ccif.dwait = 1'b1;
 		ccif.iwait = 1'b1;
@@ -330,4 +332,3 @@ endmodule
 		end
 	end
 endmodule
-*/

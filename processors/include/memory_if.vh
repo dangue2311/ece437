@@ -33,13 +33,13 @@ interface memory_if;
   word_t read_dat1, out_next, instruction, instruction_next;
   logic memwrite, memread, halt, halt_next;
   logic[2:0] jump;
-  logic bne_eq, bne_flag;
+  logic bne_eq, bne_flag, use_load, enable;
   //word_t reg_data, reg_data_next;
 
   // alu file ports
   modport  memory(
-    input   lui_flag, jal_flag, memtoreg, regwrite, load_use,
-            jr_flag, j_jal_flag, branch_addr,
+    input   enable, lui_flag, jal_flag, memtoreg, regwrite, load_use,
+            jr_flag, j_jal_flag, branch_addr, use_load,
             read_mem, dhit, ihit, flushed, jump_use,
             j_jal_addr, lower_zero, regWEN,
             write_reg, zout, halt, bne_eq, bne_flag,

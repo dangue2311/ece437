@@ -11,7 +11,7 @@ interface writeback_if;
   // import types
   import cpu_types_pkg::*;
 
-  logic         ihit, dhit, LUI, JAL, MemtoReg, regWEN_in, regWEN_out;
+  logic         enable, ihit, dhit, LUI, JAL, MemtoReg, regWEN_in, regWEN_out;
   regbits_t     write_reg_in, write_reg_out;
   logic [15:0]  imm;
   word_t        alu_out, read_mem, LowerZero, jal_addr, final_write_data;
@@ -22,7 +22,7 @@ interface writeback_if;
   //ihit and dhit from cache?
   //new_PC from jump/branch select logic
   modport wb (
-    input   ihit, dhit, LUI, JAL, MemtoReg, jal_addr, read_mem, imm, LowerZero, regWEN_in, write_reg_in, alu_out,
+    input   enable, ihit, dhit, LUI, JAL, MemtoReg, jal_addr, read_mem, imm, LowerZero, regWEN_in, write_reg_in, alu_out,
     output  final_write_data, regWEN_out, write_reg_out
   );
  

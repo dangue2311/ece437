@@ -28,6 +28,7 @@ module instruction_fetch (
   //Change ihit
   assign pcif.ihit = ifif.ihit;
   assign pcif.dhit = ifif.dhit;
+  assign pcif.enable = ifif.enable;
   assign pcif.load_use = ifif.load_use;
   assign pcif.jump_use = ifif.jump_use;
   assign pcif.new_PC = ifif.new_PC;
@@ -57,7 +58,7 @@ module instruction_fetch (
         ifif.instruction <= 32'hffffffff;
       end
       else begin
-        if (ifif.dhit && ~ifif.load_use && ~ifif.jump_use) begin 
+        if ((ifif.dhit) && ~ifif.load_use && ~ifif.jump_use) begin //~ifif.enable
           ifif.instruction <= 32'b0;
           ifif.addr_curr <= ifif.PC;
         end

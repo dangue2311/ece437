@@ -26,7 +26,7 @@ interface execution_if;
   word_t    j_jal_addr, j_jal_addr_next, read_mem_next;
   logic     jr_flag_next, j_jal_flag_next, mem_write_next, mem_read_next;
   logic     lui_flag_next, jal_flag_next, memtoreg_next;
-  logic     regWEN_next, halt_next, halt, regWEN, bne_eq;
+  logic     enable, regWEN_next, halt_next, halt, regWEN, bne_eq, use_load;
   word_t    read_mem, instruction, instruction_next;
   logic[1:0] forward_a, forward_b;
   word_t    forward_alu, forward_mem;
@@ -35,7 +35,7 @@ interface execution_if;
 
   // alu file ports
   modport  execution(
-    input   ihit, dhit, halt, load_use, jump_use,
+    input   enable, ihit, dhit, halt, load_use, jump_use, use_load,
             bne_flag, ALUSrc, extend_immi,
             shift_inst, jr_flag, j_jal_flag, mem_write, mem_read,
             lui_flag, jal_flag, memtoreg, 

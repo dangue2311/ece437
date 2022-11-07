@@ -28,7 +28,7 @@ always_ff @ (posedge CLK, negedge nRST) begin
         memif.memory_out <= '0;
         memif.jump_use_out <= '0;
     end
-    else if (memif.dhit || memif.ihit || (memif.bne_eq == 1'd1)) begin //else if (memif.dhit || memif.ihit) begin
+    else if ((memif.dhit || ~memif.enable) || memif.ihit || (memif.bne_eq == 1'd1)) begin //else if (memif.dhit || memif.ihit) begin
         memif.lui_flag_next <= memif.lui_flag;
         memif.jal_flag_next <= memif.jal_flag;
         memif.memtoreg_next <= memif.memtoreg;

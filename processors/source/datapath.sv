@@ -38,10 +38,28 @@ module datapath (
   writeback WBACK(wbif);
   forwarding_unit FORWARD(fuif);
 
-  logic hold1, hold2;
+  logic[31:0] hold1, hold2, hold2_reg, addr_reg;
+  logic state, next_state, enable;
   
   always_comb begin
+
+    next_state = state;
+    if(state == 0) begin
+      enable = 1'b1;
+      if (caif.dhit == 1'b1) begin
+        next_state = 1'b1;
+      end
+    end
+    else if(state == 1'b1) begin
+      enable = 1'b0;
+      if (addr_reg != exeif.out)begin
+        enable = 1'b1;
+        next_state = 1'b0;
+      end
+    end
+
     //Assign Instruction Fetch inputs
+    ifif.enable = enable;
     ifif.ihit = caif.ihit;
     ifif.dhit = caif.dhit;
  //   ifif.flushed = caif.flushed;
@@ -54,6 +72,7 @@ module datapath (
     ifif.jump_jr = deif.JumpJr_inst;
 
     //Assign Decode inputs
+    deif.enable = enable;
     deif.inst_addr = ifif.addr_curr;
     deif.bne_eq = huif.jump_use;
   	deif.ihit = caif.ihit;
@@ -85,6 +104,7 @@ module datapath (
 
     //Assign Execution inputs
     //control signals
+    exeif.enable = enable;
     exeif.shift_inst = deif. shift_inst;
     exeif.bne_eq = huif.jump_use;
     exeif.ihit = caif.ihit;
@@ -124,9 +144,12 @@ module datapath (
     exeif.forward_alu = exeif.out;
     exeif.forward_mem = memif.memory_out;
     exeif.jump = deif.JumpSel;
+
+    hold2 = (caif.dmemload == 32'b0) ? ((enable == 1'b0) ? hold2 : 32'b0) :caif.dmemload;
     
     //Assign Memory inputs
     //control signals
+    memif.enable = enable;
     memif.bne_flag = exeif.bne_flag_out;
     memif.jump_use = exeif.jump_use_out;
     memif.bne_eq = huif.jump_use;
@@ -142,8 +165,8 @@ module datapath (
     memif.zout = exeif.z_out;
     memif.halt = exeif.halt_next;
     //data memory signals
-		memif.read_mem = caif.dmemload;
-    memif.memory_in = caif.dmemload;
+		memif.read_mem = hold2; //caif.dmemload;
+    memif.memory_in = hold2; //caif.dmemload;
     //register write signals
     memif.regWEN = exeif.regWEN_next;
     memif.write_reg = exeif.write_reg_next;
@@ -157,6 +180,7 @@ module datapath (
     memif.jump = exeif.jump_out;
 
     //Assign Writeback inputs
+    wbif.enable = enable;
     wbif.ihit = caif.ihit;
     wbif.dhit = caif.dhit;
     //flags
@@ -175,8 +199,8 @@ module datapath (
     //assign DP
     caif.imemREN = (huif.jump_use == 1'b1) ? 1'b0 : 1'b1; // || hold1 && ~hold2
     caif.imemaddr = ifif.PC;
-    caif.dmemREN = exeif.mem_read_next && ~(exeif.halt_next || memif.halt_next);
-    caif.dmemWEN = exeif.mem_write_next && ~(exeif.halt_next || memif.halt_next);
+    caif.dmemREN = exeif.mem_read_next && ~(exeif.halt_next || memif.halt_next) && enable;
+    caif.dmemWEN = exeif.mem_write_next && ~(exeif.halt_next || memif.halt_next) && enable;
     caif.dmemstore = exeif.read_dat2_next;
     caif.dmemaddr = exeif.out;
     
@@ -185,13 +209,17 @@ module datapath (
     always_ff @(posedge CLK, negedge nRST) begin
       if(~nRST) begin
         caif.halt <= 1'b0;
-        hold1 <= 1'b0;
-        hold2 <= 1'b0;
+        hold1 <= 32'b0;
+        hold2_reg <= 32'b0;
+        state <= 1'b0;
+        addr_reg <= 32'b0;
       end
       else begin
         caif.halt <= memif.halt_next | caif.halt;
-        hold1 <= caif.ihit?1'b1:1'b0;
-        hold2 <= hold1;
+        hold1 <= exeif.out;
+        hold2_reg <= hold2;
+        state <= next_state;
+        addr_reg <= exeif.out;
       end
     end
 

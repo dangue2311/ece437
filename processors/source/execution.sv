@@ -47,7 +47,7 @@ always_ff @ (posedge CLK, negedge nRST) begin
         delay1 <= 1'b0;
     end
     else begin
-        if (exeif.ihit || exeif.dhit || (exeif.bne_eq == 1'd1 && (~exeif.mem_read_next && ~exeif.mem_write_next))) begin
+        if (exeif.ihit || (exeif.dhit || ~exeif.enable) || (exeif.bne_eq == 1'd1 && (~exeif.mem_read_next && ~exeif.mem_write_next))) begin
             exeif.out <= aluif.outport;
             exeif.branch_addr <= (exeif.sign_extend << 2) + exeif.addr_curr4;
             //(exeif.sign_extend << 2) + exeif.addr_curr4;

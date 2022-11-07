@@ -129,7 +129,7 @@ module decode (
       deif.jump_use_out <= 0;
     end
 */
-    else if ((deif.ihit || deif.dhit || deif.bne_eq) && (deif.load_use == 1'b0)) begin //If ihit or dhit, latch PC values
+    else if ((deif.ihit || (deif.dhit || ~deif.enable) || deif.bne_eq) && (deif.load_use == 1'b0)) begin //If ihit or dhit, latch PC values
       //if(~deif.load_use) begin //||~deif.load_use
 
         pp4_out_clk <= deif.pp4_out;

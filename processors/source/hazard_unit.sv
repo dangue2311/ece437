@@ -96,7 +96,7 @@ module hazard_unit (
     if (huif.flag_ju_done == 1'b1) begin  
       huif.jump_use = 1'b0;
     end
-    if (huif.fetch_instruction[31:26] == 6'b000100 ||
+    else if (huif.fetch_instruction[31:26] == 6'b000100 ||
         huif.fetch_instruction[31:26] == 6'b000101) begin
           huif.jump_use = 1'b1;
           huif.flag_ju = 1'b1;
