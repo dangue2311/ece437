@@ -1,5 +1,3 @@
-# jump around
-
 org 0x0000
 ori $1, $0, 0x0000000f
 ori $2, $0, 0x00000ff0

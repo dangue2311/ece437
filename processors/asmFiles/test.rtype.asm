@@ -6,6 +6,7 @@
   org 0x0000
   ori   $1,$zero,0xD269
   ori   $2,$zero,0x37F1
+
   ori   $21,$zero,0x80
   ori   $22,$zero,0xF0
 
@@ -23,7 +24,6 @@
   ori   $14,$0,5
   srlv  $12,$14,$1
   nor   $13,$1,$2
-
 # Store them to verify the results
   sw    $13,0($22)
   sw    $3,0($21)
