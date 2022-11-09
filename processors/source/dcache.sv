@@ -13,7 +13,7 @@ module dcache (
     parameter NUM_SETS = 2;
 
     enum { IDLE, COMPARE_TAG, ALL1, ALL2, WB1, WB2, FLUSH_INIT, FLUSH1, 
-		FLUSH2, FLUSH3, FLUSH4, FLUSH5, FINAL_FLUSH, FINAL_FLUSH2} state, n_state;
+		FLUSH2, FLUSH3, FLUSH4, FLUSH5, FINAL_FLUSH} state, n_state;
 
     word_t hit_cnt, n_hit_cnt, total_cnt, n_total_cnt;
     word_t miss_count, n_miss_count;
@@ -221,16 +221,8 @@ module dcache (
                     n_state =  FLUSH3; 
                 end
 			end 
- 	
-			FINAL_FLUSH: begin
-                cif.dWEN = 1;
-                cif.daddr = 32'h00003100;
-                cif.dstore = total_cnt - miss_count;
-                
-                n_state = (cif.dwait == 1'b0) ? FINAL_FLUSH2 : FINAL_FLUSH;
-			end
 
-            FINAL_FLUSH2: begin
+            FINAL_FLUSH: begin
                 dcif.flushed = 1;
             end
         endcase
