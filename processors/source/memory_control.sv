@@ -22,7 +22,6 @@ module memory_control (
 
 // type import
 import cpu_types_pkg::*;
-/*
 
 enum {idle_0, idle_1, imemfetch, ifetched, dfetched, invalidate,
 setup, cache_to_cache_1, cache_to_cache_2, mem_to_cache, 
@@ -165,11 +164,13 @@ always_comb begin
 		ccif.ccsnoopaddr[~prio] = ccif.daddr[prio];
 		ccif.ccinv[~prio] = 1'b1;
 		ccif.ccwait[~prio] = 1'b1;
-		if (prio) begin
-			n_state = idle_0;
-		end
-		else if (~prio) begin
-			n_state = idle_1;
+		if (ccif.ccwrite[prio] == 1'b0) begin
+			if (prio) begin
+				n_state = idle_0;
+			end
+			else if (~prio) begin
+				n_state = idle_1;
+			end
 		end 
 	end
 
@@ -267,12 +268,12 @@ always_comb begin
 			end 
 		end
 	end
-
 end
 
 
 endmodule
-*/
+
+/*
 
 	always_comb begin //dwait & iwait 
 		ccif.dwait = 1'b1;
@@ -332,3 +333,5 @@ endmodule
 		end
 	end
 endmodule
+
+*/
