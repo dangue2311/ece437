@@ -19,8 +19,10 @@ module dcache (
     word_t miss_count, n_miss_count;
     logic miss_hit_flag, n_miss_hit_flag, lru, n_lru;
 	logic [4:0] ind, n_ind;
-    dcachef_t request;
+    dcachef_t request, snoopaddress;
     dcache_frame [1:0][7:0] frames, n_frames;
+
+    assign snoopaddress = cif.ccsnoopaddr;
 
     always_ff @(posedge CLK, negedge nRST) begin
         if (~nRST) begin
@@ -44,6 +46,7 @@ module dcache (
         end
     end
 
+    //ccwait and ccinvalidate go high, invalidate at valid ccsnoopaddr
 
     always_comb begin
         n_state = state;
@@ -130,6 +133,7 @@ module dcache (
             end
 
             WB1: begin
+                //Prioritize the dstore = data[snoopaddress];
                 cif.dstore = frames[lru][request.idx].data[0];
 				if(cif.dwait) begin
                     cif.dWEN = 1;
@@ -144,6 +148,7 @@ module dcache (
             end
 
             WB2: begin
+                //Prioritize the dstore = data[snoopaddress];
                 cif.dstore = frames[lru][request.idx].data[1];
 				 if(cif.dwait) begin
                     cif.dWEN = 1;
@@ -231,3 +236,26 @@ module dcache (
     assign request = dcif.dmemaddr;
 
 endmodule
+
+        if((cif.ccwait) begin
+            if(frames[0][snoopaddress.idx].tag == snoopaddress.tag && frames[0][snoopaddress.idx].valid) begin
+                if(cif.ccinv) begin
+                    frames[0][snoopaddress.idx].valid = 0;
+                end
+                else begin
+                    cctrans = frames[0][snoopaddress.idx].valid & frames[0][snoopaddress.idx].dirty;
+                    dstore = frames[0][snoopaddress.idx].data[snoopaddress.blkoff];
+                end
+            end
+            else if(frames[1][snoopaddress.idx].tag == snoopaddress.tag && frames[1][snoopaddress.idx].valid) begin
+                if(cif.ccinv) begin
+                    frames[1][snoopaddress.idx].valid = 0;
+                end
+                else begin
+                    cctrans = frames[1][snoopaddress.idx].valid & frames[1][snoopaddress.idx].dirty;
+                    dstore = frames[1][snoopaddress.idx].data[snoopaddress.blkoff];
+                end
+            end
+        end
+
+//else dstore
