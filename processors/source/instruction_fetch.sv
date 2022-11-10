@@ -45,8 +45,8 @@ module instruction_fetch (
 
   always_ff @(posedge CLK, negedge nRST) begin
     if(~nRST) begin
-      ifif.PC <= '0;
-      ifif.instruction <= '0;
+      ifif.PC <= PC_INIT;
+      ifif.instruction <= PC_INIT;
       ifif.pp4 <= '0;
       halt_reg <= 1'b0;
       ifif.addr_curr <= 1'b0;
