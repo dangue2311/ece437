@@ -16,6 +16,8 @@ module program_counter (
   // type import
   import cpu_types_pkg::*;
 
+  parameter PC_INIT = 0;
+
   logic pcEN, pcEN2;
   word_t next_PC, new_pc_hold, new_pc_reg;
 
@@ -30,7 +32,7 @@ module program_counter (
 
   always_ff @(posedge CLK, negedge nRST) begin
     if(~nRST) begin
-      pcif.PC <= '0;
+      pcif.PC <= PC_INIT;
       new_pc_reg <= '0;
     end
     else begin

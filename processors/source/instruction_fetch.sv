@@ -20,7 +20,7 @@ module instruction_fetch (
   program_counter_if pcif();
 
   //DUTs
-  program_counter PC(CLK, nRST, pcif);
+  program_counter #(.PC_INIT(PC_INIT)) PC(CLK, nRST, pcif);
 
   word_t next_pp4;
   logic  halt_reg, halt_hold;
