@@ -4,6 +4,7 @@
 #core 1
 org 0x0000
   ori $t0, $0, word1
+  halt
   lw  $t1, 0($t0)
   ori $t2, $0, 16
   sllv $t1, $t2, $t1
@@ -25,6 +26,7 @@ wait1:
 # core 2
 org 0x0200
   ori $t0, $0, word2
+  halt
   lw  $t1, 0($t0)
   ori $t2, $0, value
   sw  $t1, 0($t2)

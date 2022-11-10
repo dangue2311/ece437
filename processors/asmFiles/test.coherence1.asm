@@ -5,6 +5,7 @@
 org 0x0000
   ori $t0, $0, data1
   lui $t1, 0xDEAD
+  halt
   ori $t1, $t1, 0xBEEF
   sw  $t1, 0($t0)
   ori $t0, $0, data4
@@ -17,6 +18,7 @@ org 0x0000
 org 0x0200
   ori $t0, $0, data2
   lui $t1, 0x89AB
+  halt
   ori $t1, $t1, 0xCDEF
   sw  $t1, 0($t0)
   ori $t0, $0, data3
