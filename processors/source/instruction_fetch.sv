@@ -59,7 +59,7 @@ module instruction_fetch (
       end
       else begin
         if ((ifif.dhit) && ~ifif.load_use && ~ifif.jump_use) begin //~ifif.enable
-          ifif.instruction <= 32'b0;
+          ifif.instruction <= PC_INIT;
           ifif.addr_curr <= ifif.PC;
         end
         else if (ifif.ihit && ~ifif.load_use && ~ifif.jump_use) begin //ifif.dhit
@@ -67,7 +67,7 @@ module instruction_fetch (
           ifif.addr_curr <= ifif.PC;
         end
         else if (ifif.jump_use && ~ifif.load_use) begin
-          ifif.instruction <= 32'b0;
+          ifif.instruction <= PC_INIT;
           ifif.addr_curr <= ifif.PC;
         end
         if (ifif.cache_in[31:26] == 6'b000010) begin
@@ -82,7 +82,7 @@ module instruction_fetch (
           ifif.PC <= ifif.jump_jr;
           ifif.pp4 <= next_pp4;
         end
-        else if ((ifif.load_use == 1'b0) && (ifif.jump_use == 1'b1) && (ifif.new_PC != 32'b0)) begin
+        else if ((ifif.load_use == 1'b0) && (ifif.jump_use == 1'b1) && (ifif.new_PC != PC_INIT)) begin
           ifif.PC <= ifif.new_PC;
           ifif.pp4 <= next_pp4;
         end
