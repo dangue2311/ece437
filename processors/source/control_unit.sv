@@ -36,7 +36,7 @@ always_comb begin
 	cuif.BEQ = 0;
 
     //RTYPE
-	if (cuif.inst[31:26] == RTYPE) begin
+	if (opcode == RTYPE) begin
 		cuif.rs = cuif.inst[25:21];
 		cuif.rt = cuif.inst[20:16];
 		cuif.rd = cuif.inst[15:11];
@@ -100,10 +100,10 @@ always_comb begin
 			end
 		endcase
 	end 
-    else if (cuif.inst[31:26] == J) begin
+    else if (opcode == J) begin
 		cuif.JumpSel = 1;	
 	end 
-    else if (cuif.inst[31:26] == JAL) begin
+    else if (opcode == JAL) begin
 		cuif.JAL = 1;
 		cuif.RegDest = 2;
 		cuif.JumpSel = 1;
