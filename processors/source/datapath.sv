@@ -18,7 +18,7 @@ module datapath (
   import cpu_types_pkg::*;
 
   // pc init
-  parameter PC_INIT = 0;
+  parameter PC_INIT;
   
   //Interface Initialization
   instruction_fetch_if ifif();
@@ -30,7 +30,7 @@ module datapath (
   forwarding_unit_if fuif();
 	
   //DUT
-  instruction_fetch IFETCH(CLK, nRST, ifif);
+  instruction_fetch IFETCH(.PCV(PC_INIT), CLK, nRST, ifif);
   decode DEC(CLK, nRST, deif);
   hazard_unit HUNIT(CLK, nRST, huif);
   execution EXECUTE (CLK, nRST, exeif);

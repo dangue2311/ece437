@@ -14,7 +14,7 @@ module instruction_fetch (
   import cpu_types_pkg::*;
 
   // pc init
-  parameter PC_INIT = 0;
+  parameter PCV;
 
   //interfaces
   program_counter_if pcif();
