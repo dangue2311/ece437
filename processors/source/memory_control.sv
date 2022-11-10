@@ -24,7 +24,7 @@ module memory_control (
 import cpu_types_pkg::*;
 
 enum {idle_0, idle_1, imemfetch, ifetched, dfetched, invalidate,
-setup, cache_to_cache_1, cache_to_cache_2, cache_to_cache_3, mem_to_cache, 
+setup, cache_to_cache_1, cache_to_cache_2, cache_to_cache_3, mem_to_cache_1, mem_to_cache_2,
 cache_to_mem} state, n_state;
 logic prio, prio_hold;
 
@@ -185,7 +185,7 @@ always_comb begin
 			ccif.ramstore = ccif.dstore[~prio];
 		end
 		else if (ccif.dREN[prio]&~ccif.cctrans[~prio])begin
-			n_state = mem_to_cache;
+			n_state = mem_to_cache_1;
 			ccif.ramREN = 1'b1;
 			ccif.ramaddr = ccif.daddr[prio];
 		end
@@ -244,13 +244,26 @@ always_comb begin
 		end
 	end
 
-	if(state == mem_to_cache) begin
+	if(state == mem_to_cache_1) begin
 		ccif.ccwait[~prio] = 1'b1;
 		ccif.ramREN = 1'b1;
 		ccif.ramaddr = ccif.daddr[prio];
 		if (ccif.ramstate == ACCESS) begin
 			ccif.dwait[prio] = 1'b0;
 			ccif.ramREN = 1'b1;
+			ccif.dload[prio] = ccif.ramload;
+			n_state = mem_to_cache_2;
+		end
+	end
+
+	if(state == mem_to_cache_2) begin
+		ccif.ccwait[~prio] = 1'b1;
+		ccif.ramREN = 1'b1;
+		ccif.ramaddr = ccif.daddr[prio];
+		if (ccif.ramstate == ACCESS) begin
+			ccif.dwait[prio] = 1'b0;
+			ccif.ramREN = 1'b1;
+			ccif.dload[prio] = ccif.ramload;
 			n_state = dfetched;
 		end
 	end
