@@ -117,6 +117,9 @@ module dcache (
                         dcif.dmemload = dcif.dmemstore;
                         n_frames[0][request.idx].data[request.blkoff] = dcif.dmemstore;
                         n_frames[0][request.idx].dirty = 1;
+                        //For invalidate
+                        cif.ccwrite = 1;
+                        cif.daddr = {request[31:3], 1'b0, request[1:0]};
                     end
                 end 
                 else if (frames[1][request.idx].tag == request.tag && frames[1][request.idx].valid) begin
@@ -128,6 +131,9 @@ module dcache (
                         dcif.dmemload = dcif.dmemstore;
                         n_frames[1][request.idx].data[request.blkoff] = dcif.dmemstore;
                         n_frames[1][request.idx].dirty = 1;
+                        //For invalidate
+                        cif.ccwrite = 1;
+                        cif.daddr = {request[31:3], 1'b1, request[1:0]};
                     end
                 end 
                 else begin
