@@ -17,12 +17,12 @@ module dcache (
 
     word_t hit_cnt, n_hit_cnt, total_cnt, n_total_cnt;
     word_t miss_count, n_miss_count;
-    logic miss_hit_flag, n_miss_hit_flag, lru, n_lru;
+    logic miss_hit_flag, n_miss_hit_flag, lru, n_lru, wb_flag;
 	logic [4:0] ind, n_ind;
     dcachef_t request, snoopaddress;
     dcache_frame [1:0][7:0] frames, n_frames;
 
-    assign snoopaddress = cif.ccsnoopaddr;
+    assign next_snoopaddress = cif.ccsnoopaddr;
 
     always_ff @(posedge CLK, negedge nRST) begin
         if (~nRST) begin
@@ -34,6 +34,9 @@ module dcache (
             miss_hit_flag <= '0;
             miss_count <= '0;
             total_cnt <= '0;
+            wb_flag <= '1;
+            cif.cctrans <= '0;
+            snoopaddress <= '0;
         end else begin
             frames <= n_frames;
             state <= n_state;
@@ -43,6 +46,9 @@ module dcache (
             hit_cnt <= n_hit_cnt;
             miss_hit_flag <= n_miss_hit_flag;
             total_cnt <= n_total_cnt;
+            wb_flag <= next_wb_flag;
+            cif.cctrans <= next_cctrans;
+            snoopaddress <= next_snoopaddress;
         end
     end
 
@@ -64,6 +70,35 @@ module dcache (
         n_hit_cnt = hit_cnt;
         cif.dstore = '0;
         n_total_cnt = total_cnt;
+        next_wb_flag = '1;
+        next_cctrans = '0;
+        
+        if((cif.ccwait) begin
+            if(frames[0][snoopaddress.idx].tag == snoopaddress.tag && frames[0][snoopaddress.idx].valid) begin
+                if(cif.ccinv) begin
+                    frames[0][snoopaddress.idx].valid = 0;
+                end
+                else begin
+                    next_cctrans = frames[0][snoopaddress.idx].valid & frames[0][snoopaddress.idx].dirty;
+                    next_wb_flag = 0
+                    //maybe frames[0][snoopaddress.idx].dirty = 0;
+                    cif.dstore = frames[0][snoopaddress.idx].data[snoopaddress.blkoff];
+                end
+            end
+            else if(frames[1][snoopaddress.idx].tag == snoopaddress.tag && frames[1][snoopaddress.idx].valid) begin
+                if(cif.ccinv) begin
+                    frames[1][snoopaddress.idx].valid = 0;
+                end
+                else begin
+                    next_cctrans = frames[1][snoopaddress.idx].valid & frames[1][snoopaddress.idx].dirty;
+                    next_wb_flag = 0;
+                    //maybe frames[0][snoopaddress.idx].dirty = 0;
+                    cif.dstore = frames[1][snoopaddress.idx].data[snoopaddress.blkoff];
+                end
+            end
+        end
+
+        //if((snoopaddress == next_snoopaddress) && (snoopaddress != '0)) frames[0] 
 
         casez(state)
             COMPARE_TAG: begin
@@ -105,7 +140,8 @@ module dcache (
                     cif.dREN = 1;
                     cif.daddr = {request[31:3], 1'b0, request[1:0]};
                     n_state = ALL1;
-                end else begin
+                end 
+                else begin
                     n_frames[lru][request.idx].data[0] = cif.dload;
                     cif.dREN = 1;
                     cif.daddr =  {request[31:3], 1'b0, request[1:0]};
@@ -118,8 +154,8 @@ module dcache (
                     cif.dREN = 1;
                     cif.daddr = {request[31:3], 1'b1, request[1:0]}; //request + 32'd4;
                     n_state = ALL2;
-	
-                end else begin
+                end 
+                else begin
                     n_frames[lru][request.idx].valid = 1;
                     n_frames[lru][request.idx].dirty = 0;
                     n_frames[lru][request.idx].tag = request.tag;
@@ -134,7 +170,7 @@ module dcache (
 
             WB1: begin
                 //Prioritize the dstore = data[snoopaddress];
-                cif.dstore = frames[lru][request.idx].data[0];
+                if(wb_flag == 1) cif.dstore = frames[lru][request.idx].data[0];
 				if(cif.dwait) begin
                     cif.dWEN = 1;
                     cif.daddr = {frames[lru][request.idx].tag, request.idx, 1'b0, 2'b00}; // request
@@ -149,7 +185,7 @@ module dcache (
 
             WB2: begin
                 //Prioritize the dstore = data[snoopaddress];
-                cif.dstore = frames[lru][request.idx].data[1];
+                if(wb_flag == 1) cif.dstore = frames[lru][request.idx].data[1];
 				 if(cif.dwait) begin
                     cif.dWEN = 1;
                     cif.daddr = {frames[lru][request.idx].tag, request.idx, 1'b1, 2'b00}; //{request[31:3], 1'b1, request[1:0]}; //request + 32'd4;
@@ -237,25 +273,6 @@ module dcache (
 
 endmodule
 
-        if((cif.ccwait) begin
-            if(frames[0][snoopaddress.idx].tag == snoopaddress.tag && frames[0][snoopaddress.idx].valid) begin
-                if(cif.ccinv) begin
-                    frames[0][snoopaddress.idx].valid = 0;
-                end
-                else begin
-                    cctrans = frames[0][snoopaddress.idx].valid & frames[0][snoopaddress.idx].dirty;
-                    dstore = frames[0][snoopaddress.idx].data[snoopaddress.blkoff];
-                end
-            end
-            else if(frames[1][snoopaddress.idx].tag == snoopaddress.tag && frames[1][snoopaddress.idx].valid) begin
-                if(cif.ccinv) begin
-                    frames[1][snoopaddress.idx].valid = 0;
-                end
-                else begin
-                    cctrans = frames[1][snoopaddress.idx].valid & frames[1][snoopaddress.idx].dirty;
-                    dstore = frames[1][snoopaddress.idx].data[snoopaddress.blkoff];
-                end
-            end
-        end
+
 
 //else dstore
