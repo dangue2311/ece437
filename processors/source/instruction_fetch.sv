@@ -46,7 +46,7 @@ module instruction_fetch (
   always_ff @(posedge CLK, negedge nRST) begin
     if(~nRST) begin
       ifif.PC <= PC_INIT;
-      ifif.instruction <= PC_INIT;
+      ifif.instruction <= '0;
       ifif.pp4 <= '0;
       halt_reg <= 1'b0;
       ifif.addr_curr <= 1'b0;
@@ -59,7 +59,7 @@ module instruction_fetch (
       end
       else begin
         if ((ifif.dhit) && ~ifif.load_use && ~ifif.jump_use) begin //~ifif.enable
-          ifif.instruction <= PC_INIT;
+          ifif.instruction <= '0;
           ifif.addr_curr <= ifif.PC;
         end
         else if (ifif.ihit && ~ifif.load_use && ~ifif.jump_use) begin //ifif.dhit
@@ -67,7 +67,7 @@ module instruction_fetch (
           ifif.addr_curr <= ifif.PC;
         end
         else if (ifif.jump_use && ~ifif.load_use) begin
-          ifif.instruction <= PC_INIT;
+          ifif.instruction <= '0;
           ifif.addr_curr <= ifif.PC;
         end
         if (ifif.cache_in[31:26] == 6'b000010) begin
