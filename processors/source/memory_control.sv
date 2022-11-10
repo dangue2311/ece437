@@ -24,7 +24,7 @@ module memory_control (
 import cpu_types_pkg::*;
 
 enum {idle_0, idle_1, imemfetch, ifetched, dfetched, invalidate,
-setup, cache_to_cache_1, cache_to_cache_2, mem_to_cache, 
+setup, cache_to_cache_1, cache_to_cache_2, cache_to_cache_3, mem_to_cache, 
 cache_to_mem} state, n_state;
 logic prio, prio_hold;
 
