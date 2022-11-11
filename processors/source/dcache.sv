@@ -103,7 +103,7 @@ module dcache (
 
         casez(state)
             COMPARE_TAG: begin
-                cif.ccwrite = 0;sim:/system_tb/DUT/CPU/CM1/DCACHE/state
+                cif.ccwrite = 0;
 
                 if(dcif.halt == 1) begin
                     n_state = FLUSH_INIT;

@@ -182,7 +182,7 @@ always_comb begin
 		if (ccif.dREN[prio]&ccif.cctrans[~prio])begin
 			n_state = cache_to_cache_1;
 			ccif.ramWEN = 1'b1;
-			ccif.ramaddr = ccif.daddr[~prio];
+			ccif.ramaddr = ccif.daddr[prio];
 			ccif.ramstore = ccif.dstore[~prio];
 		end
 		else if (ccif.dREN[prio]&~ccif.cctrans[~prio])begin
@@ -204,7 +204,7 @@ always_comb begin
 		ccif.ccsnoopaddr[~prio] = ccif.daddr[prio];
 		ccif.ccwait[~prio] = 1'b1;
 		ccif.ramWEN = 1'b1;
-		ccif.ramaddr = ccif.daddr[~prio];
+		ccif.ramaddr = ccif.daddr[prio];
 		ccif.ramstore = ccif.dstore[~prio];
 		if (ccif.ramstate == ACCESS) begin
 			n_state = cache_to_cache_2;
@@ -217,7 +217,7 @@ always_comb begin
 		ccif.ccsnoopaddr[~prio] = ccif.daddr[prio];
 		ccif.ccwait[~prio] = 1'b1;
 		ccif.ramWEN = 1'b1;
-		ccif.ramaddr = ccif.daddr[~prio];
+		ccif.ramaddr = ccif.daddr[prio];
 		ccif.ramstore = ccif.dstore[~prio];
 		if (ccif.ramstate == ACCESS) begin
 			n_state = cache_to_cache_3;
@@ -258,8 +258,7 @@ always_comb begin
 	end
 
 	if(state == mem_to_cache_2) begin
-		ccif.ccwait[~sim:/system_tb/DUT/CPU/CM1/DCACHE/state
-prio] = 1'b1;
+		ccif.ccwait[~prio] = 1'b1;
 		ccif.ramREN = 1'b1;
 		ccif.ramaddr = ccif.daddr[prio];
 		if (ccif.ramstate == ACCESS) begin
