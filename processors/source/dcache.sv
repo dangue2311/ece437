@@ -13,7 +13,7 @@ module dcache (
     parameter NUM_SETS = 2;
 
     enum { IDLE, COMPARE_TAG, ALL1, ALL2, WB1, WB2, FLUSH_INIT, FLUSH1, 
-		FLUSH2, FLUSH3, FLUSH4, FLUSH5, FINAL_FLUSH} state, n_state;
+		FLUSH2, FLUSH3, FLUSH4, FLUSH5, FINAL_FLUSH, invalidate} state, n_state;
 
     word_t hit_cnt, n_hit_cnt, total_cnt, n_total_cnt;
     word_t miss_count, n_miss_count;
@@ -35,7 +35,7 @@ module dcache (
             miss_count <= '0;
             total_cnt <= '0;
             wb_flag <= '1;
-            cif.cctrans <= '0;
+//           cif.cctrans <= '0;
             snoopaddress <= '0;
         end else begin
             frames <= n_frames;
@@ -47,7 +47,7 @@ module dcache (
             miss_hit_flag <= n_miss_hit_flag;
             total_cnt <= n_total_cnt;
             wb_flag <= next_wb_flag;
-            cif.cctrans <= next_cctrans;
+//           cif.cctrans <= next_cctrans;
             snoopaddress <= next_snoopaddress;
         end
     end
@@ -71,7 +71,8 @@ module dcache (
         cif.dstore = '0;
         n_total_cnt = total_cnt;
         next_wb_flag = '1;
-        next_cctrans = '0;
+        cif.cctrans = '0;
+//        next_cctrans = '0;
         
         if(cif.ccwait) begin
             if(frames[0][snoopaddress.idx].tag == snoopaddress.tag && frames[0][snoopaddress.idx].valid) begin
@@ -79,7 +80,7 @@ module dcache (
                     n_frames[0][snoopaddress.idx].valid = 0;
                 end
                 else begin
-                    next_cctrans = frames[0][snoopaddress.idx].valid & frames[0][snoopaddress.idx].dirty;
+                    cif.cctrans = frames[0][snoopaddress.idx].valid & frames[0][snoopaddress.idx].dirty;
                     next_wb_flag = 0;
                     //maybe frames[0][snoopaddress.idx].dirty = 0;
                     cif.dstore = frames[0][snoopaddress.idx].data[snoopaddress.blkoff];
@@ -90,7 +91,7 @@ module dcache (
                     n_frames[1][snoopaddress.idx].valid = 0;
                 end
                 else begin
-                    next_cctrans = frames[1][snoopaddress.idx].valid & frames[1][snoopaddress.idx].dirty;
+                    cif.cctrans = frames[1][snoopaddress.idx].valid & frames[1][snoopaddress.idx].dirty;
                     next_wb_flag = 0;
                     //maybe frames[0][snoopaddress.idx].dirty = 0;
                     cif.dstore = frames[1][snoopaddress.idx].data[snoopaddress.blkoff];
@@ -102,24 +103,28 @@ module dcache (
 
         casez(state)
             COMPARE_TAG: begin
+                cif.ccwrite = 0;sim:/system_tb/DUT/CPU/CM1/DCACHE/state
+
                 if(dcif.halt == 1) begin
                     n_state = FLUSH_INIT;
                     n_ind = 0;
                 end 
                 else if (!dcif.dmemREN && !dcif.dmemWEN) begin
                     n_state = COMPARE_TAG;
-                end
-                else if(frames[0][request.idx].tag == request.tag && frames[0][request.idx].valid) begin
+                end              
+                else if (frames[0][request.idx].tag == request.tag && frames[0][request.idx].valid) begin
                     dcif.dhit = 1;
                     n_total_cnt = total_cnt + 1;
                     dcif.dmemload = frames[0][request.idx].data[request.blkoff];
                     if (dcif.dmemWEN) begin
-                        dcif.dmemload = dcif.dmemstore;
+                        dcif.dhit = 0;
+                        //dcif.dmemload = dcif.dmemstore;
                         n_frames[0][request.idx].data[request.blkoff] = dcif.dmemstore;
                         n_frames[0][request.idx].dirty = 1;
                         //For invalidate
                         cif.ccwrite = 1;
                         cif.daddr = {request[31:3], 1'b0, request[1:0]};
+                        n_state = invalidate;
                     end
                 end 
                 else if (frames[1][request.idx].tag == request.tag && frames[1][request.idx].valid) begin
@@ -128,14 +133,30 @@ module dcache (
                     n_total_cnt = total_cnt + 1;
                     dcif.dmemload = frames[1][request.idx].data[request.blkoff];
                     if (dcif.dmemWEN) begin
-                        dcif.dmemload = dcif.dmemstore;
+                        dcif.dhit = 0;
+                        //dcif.dmemload = dcif.dmemstore;
                         n_frames[1][request.idx].data[request.blkoff] = dcif.dmemstore;
                         n_frames[1][request.idx].dirty = 1;
                         //For invalidate
                         cif.ccwrite = 1;
                         cif.daddr = {request[31:3], 1'b1, request[1:0]};
+                        n_state = invalidate;
                     end
                 end 
+/*                else if (dcif.dmemWEN && (frames[0][request.idx].tag == request.tag) && (frames[0][request.idx].data[0] == '0) && (frames[0][request.idx].data[1] == '0)) begin
+                    n_frames[0][request.idx].data[request.blkoff] = dcif.dmemstore;
+                    n_frames[0][request.idx].dirty = 1;
+                    cif.ccwrite = 1;
+                    cif.daddr = {request[31:3], 1'b0, request[1:0]};
+                    n_state = invalidate;
+                end  
+                else if (dcif.dmemWEN && (frames[1][request.idx].tag == request.tag) && (frames[1][request.idx].data[0] == '0) && (frames[1][request.idx].data[1] == '0)) begin
+                    n_frames[0][request.idx].data[request.blkoff] = dcif.dmemstore;
+                    n_frames[0][request.idx].dirty = 1;
+                    cif.ccwrite = 1;
+                    cif.daddr = {request[31:3], 1'b0, request[1:0]};
+                    n_state = invalidate;
+                end*/
                 else begin
                     n_state = frames[lru][request.idx].dirty ? WB1 : ALL1;
                 end
@@ -195,11 +216,23 @@ module dcache (
 				 if(cif.dwait) begin
                     cif.dWEN = 1;
                     cif.daddr = {frames[lru][request.idx].tag, request.idx, 1'b1, 2'b00}; //{request[31:3], 1'b1, request[1:0]}; //request + 32'd4;
-
-                end else begin
+                end 
+                else begin
                     cif.dWEN = 1;
                     cif.daddr =  {frames[lru][request.idx].tag, request.idx, 1'b1, 2'b00}; //{request[31:3], 1'b0, request[1:0]};
                     n_state = ALL1;
+                end
+            end
+
+            invalidate: begin
+                n_frames[0][request.idx].data[request.blkoff] = dcif.dmemstore;
+                n_frames[0][request.idx].dirty = 1;
+                cif.ccwrite = 1;
+                cif.daddr = {request[31:3], 1'b0, request[1:0]};
+                n_state = invalidate;
+                if (cif.ccinv) begin
+                    n_state = COMPARE_TAG;
+                    dcif.dhit = 1;
                 end
             end
 

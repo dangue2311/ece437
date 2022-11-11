@@ -15,6 +15,7 @@ add wave -noupdate -expand -group {Datapath 0} /system_tb/DUT/CPU/dcif0/flushed
 add wave -noupdate -expand -group {Datapath 0} /system_tb/DUT/CPU/dcif0/dmemload
 add wave -noupdate -expand -group {Datapath 0} /system_tb/DUT/CPU/dcif0/dmemstore
 add wave -noupdate -expand -group {Datapath 0} /system_tb/DUT/CPU/dcif0/dmemaddr
+add wave -noupdate -expand -group {Datapath 0} /system_tb/DUT/CPU/CM0/DCACHE/state
 add wave -noupdate -expand -group {Datapath 1} /system_tb/DUT/CPU/dcif1/halt
 add wave -noupdate -expand -group {Datapath 1} /system_tb/DUT/CPU/dcif1/ihit
 add wave -noupdate -expand -group {Datapath 1} /system_tb/DUT/CPU/dcif1/imemREN
@@ -28,8 +29,20 @@ add wave -noupdate -expand -group {Datapath 1} /system_tb/DUT/CPU/dcif1/flushed
 add wave -noupdate -expand -group {Datapath 1} /system_tb/DUT/CPU/dcif1/dmemload
 add wave -noupdate -expand -group {Datapath 1} /system_tb/DUT/CPU/dcif1/dmemstore
 add wave -noupdate -expand -group {Datapath 1} /system_tb/DUT/CPU/dcif1/dmemaddr
+add wave -noupdate -expand -group {Datapath 1} /system_tb/DUT/CPU/CM1/DCACHE/state
 add wave -noupdate /system_tb/DUT/CPU/CC/state
 add wave -noupdate /system_tb/DUT/CPU/CC/prio
+add wave -noupdate /system_tb/DUT/CPU/CC/ccif/dwait
+add wave -noupdate /system_tb/DUT/CPU/CC/ccif/dREN
+add wave -noupdate /system_tb/DUT/CPU/CC/ccif/dWEN
+add wave -noupdate /system_tb/DUT/CPU/CC/ccif/dload
+add wave -noupdate /system_tb/DUT/CPU/CC/ccif/dstore
+add wave -noupdate /system_tb/DUT/CPU/CC/ccif/daddr
+add wave -noupdate /system_tb/DUT/CPU/CC/ccif/ccwait
+add wave -noupdate /system_tb/DUT/CPU/CC/ccif/ccinv
+add wave -noupdate /system_tb/DUT/CPU/CC/ccif/ccwrite
+add wave -noupdate /system_tb/DUT/CPU/CC/ccif/cctrans
+add wave -noupdate -expand /system_tb/DUT/CPU/CC/ccif/ccsnoopaddr
 add wave -noupdate -group RAM /system_tb/DUT/RAM/ramif/ramREN
 add wave -noupdate -group RAM /system_tb/DUT/RAM/ramif/ramWEN
 add wave -noupdate -group RAM /system_tb/DUT/RAM/ramif/ramaddr
@@ -41,7 +54,7 @@ add wave -noupdate -group RAM /system_tb/DUT/RAM/ramif/memWEN
 add wave -noupdate -group RAM /system_tb/DUT/RAM/ramif/memaddr
 add wave -noupdate -group RAM /system_tb/DUT/RAM/ramif/memstore
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {2748614 ps} 0}
+WaveRestoreCursors {{Cursor 1} {1849468 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 100
@@ -57,4 +70,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {1885800 ps} {3232800 ps}
+WaveRestoreZoom {875550 ps} {2222550 ps}

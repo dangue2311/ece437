@@ -164,14 +164,15 @@ always_comb begin
 		ccif.ccsnoopaddr[~prio] = ccif.daddr[prio];
 		ccif.ccinv[~prio] = 1'b1;
 		ccif.ccwait[~prio] = 1'b1;
-		if (ccif.ccwrite[prio] == 1'b0) begin
+		ccif.ccinv[prio] = 1'b1;
+//		if (ccif.ccwrite[prio] == 1'b0) begin
 			if (prio) begin
 				n_state = idle_0;
 			end
 			else if (~prio) begin
 				n_state = idle_1;
 			end
-		end 
+//		end 
 	end
 
 	if(state == setup) begin
@@ -257,7 +258,8 @@ always_comb begin
 	end
 
 	if(state == mem_to_cache_2) begin
-		ccif.ccwait[~prio] = 1'b1;
+		ccif.ccwait[~sim:/system_tb/DUT/CPU/CM1/DCACHE/state
+prio] = 1'b1;
 		ccif.ramREN = 1'b1;
 		ccif.ramaddr = ccif.daddr[prio];
 		if (ccif.ramstate == ACCESS) begin
