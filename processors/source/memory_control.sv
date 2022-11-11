@@ -292,6 +292,7 @@ always_comb begin
 		ccif.ramstore = ccif.dstore[prio];
 		if (ccif.ramstate == ACCESS) begin	
 			ccif.dwait[prio] = 1'b0;
+			ccif.ccwait[~prio] = 1'b0;
 			if (prio) begin
 				n_state = idle_0;
 			end

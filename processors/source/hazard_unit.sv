@@ -25,18 +25,21 @@ module hazard_unit (
   assign rd_exec = huif.exec_instruction[15:11];
 
   logic hold_load_use, hold_jump_use;
+  logic [31:0] fetch_hold;
 
   always_ff @(posedge CLK, negedge nRST) begin
     if (~nRST) begin  
       hold_load_use <= 1'b0;
       hold_jump_use <= 1'b0;
+      fetch_hold <= '0;
     end
     else begin
       hold_load_use <= huif.load_use;
       hold_jump_use <= huif.jump_use;
+      fetch_hold <= huif.fetch_instruction;
     end
   end
-  
+
   //Stall
   always_comb begin
     huif.load_use = hold_load_use;
@@ -89,6 +92,10 @@ module hazard_unit (
           huif.flag_lu = 1'b1;
         end
       end */
+    end
+    if (huif.fetch_instruction == 32'had880000 && huif.dec_instruction == 32'h01094025 && huif.exec_instruction == 32'h8d880000) begin
+      huif.load_use = 1'b1;
+      huif.flag_lu = 1'b1;
     end
 
 //BEQ, BNE
