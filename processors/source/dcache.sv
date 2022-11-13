@@ -74,7 +74,7 @@ module dcache (
         cif.cctrans = '0;
 //        next_cctrans = '0;
         
-        if(cif.ccwait) begin
+        if(cif.ccwait /*&& (state != FLUSH1) && (state != FLUSH2) && (state != FLUSH3) && (state != FLUSH4) && (state != FLUSH5) && (state != FLUSH_INIT)*/) begin
             if(frames[0][snoopaddress.idx].tag == snoopaddress.tag && frames[0][snoopaddress.idx].valid) begin
                 if(cif.ccinv) begin
                     n_frames[0][snoopaddress.idx].valid = 0;
@@ -264,8 +264,10 @@ module dcache (
                 cif.dstore = frames[0][ind[2:0]].data[1];
                 if(cif.dwait) begin
                 end else begin
-                    n_state =  FLUSH_INIT; 
+                    n_state =  FLUSH_INIT;
 					n_ind = ind + 1;
+                    //Added line
+                    n_frames[0][ind[2:0]].valid = 0;
                 end
 			end 
  		
@@ -299,6 +301,8 @@ module dcache (
                 end else begin	
 					n_ind = ind + 1;
                     n_state =  FLUSH3; 
+                    //Added line
+                    n_frames[1][ind[2:0]].valid = 0;
                 end
 			end 
 

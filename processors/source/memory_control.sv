@@ -28,6 +28,14 @@ setup, cache_to_cache_1, cache_to_cache_2, cache_to_cache_3, mem_to_cache_1, mem
 cache_to_mem} state, n_state;
 logic prio, prio_hold;
 
+//At time of FLUSH_INIT, ramWEN is high, which it should not be.
+//This is being set from bus_controller in multiple states
+//PROBLEM: If not getting stuff from dCache, it will cause there to be bad writes
+//Possible solution: checking for dWEN from dcache in order to assert ramWEN;
+//ON CERTAIN STATES
+//On flush state might have ignored 
+
+
 // number of cpus for cc
 parameter CPUS = 2;
 
