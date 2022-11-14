@@ -298,7 +298,7 @@ always_comb begin
 		ccif.ramWEN = 1'b1;
 		ccif.ramaddr = ccif.daddr[prio];
 		ccif.ramstore = ccif.dstore[prio];
-		if (ccif.ramstate == ACCESS) begin	
+		if ((ccif.ramstate == ACCESS) || (ccif.dWEN == '0)) begin	
 			ccif.dwait[prio] = 1'b0;
 			ccif.ccwait[~prio] = 1'b0;
 			if (prio) begin
