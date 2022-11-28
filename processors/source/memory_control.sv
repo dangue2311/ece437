@@ -187,13 +187,13 @@ always_comb begin
 		n_state = setup;
 		ccif.ccsnoopaddr[~prio] = ccif.daddr[prio];
 		ccif.ccwait[~prio] = 1'b1;
-		if (ccif.dREN[prio]&ccif.cctrans[~prio])begin
+		if (ccif.dREN[prio] && ccif.cctrans[~prio])begin
 			n_state = cache_to_cache_1;
 			ccif.ramWEN = 1'b1;
 			ccif.ramaddr = ccif.daddr[prio];
 			ccif.ramstore = ccif.dstore[~prio];
 		end
-		else if (ccif.dREN[prio]&~ccif.cctrans[~prio])begin
+		else if (ccif.dREN[prio] && ~ccif.cctrans[~prio])begin
 			n_state = mem_to_cache_1;
 			ccif.ramREN = 1'b1;
 			ccif.ramaddr = ccif.daddr[prio];
@@ -206,7 +206,47 @@ always_comb begin
 			ccif.ramaddr = ccif.daddr[prio];
 			ccif.ramstore = ccif.dstore[prio];
 		end
+		else if (ccif.dWEN[prio]) begin
+			if (ccif.dstore[prio] == 32'hbad0bad0) begin
+				ccif.dwait[prio] = 1'b0;
+				ccif.ccwait[~prio] = 1'b0;
+				if (prio) begin
+					n_state = idle_0;
+				end
+				else if (~prio) begin
+					n_state = idle_1;
+				end
+			end
+			else begin
+				n_state = cache_to_mem;
+				ccif.ccsnoopaddr[~prio] = 32'b0;
+				ccif.ccwait[~prio] = 1'b0;
+				ccif.ramWEN = 1'b1;
+				ccif.ramaddr = ccif.daddr[prio];
+				ccif.ramstore = ccif.dstore[prio];
+			end 
+		end
 	end
+
+
+/*
+if(state == cache_to_mem) begin
+		ccif.ccwait[~prio] = 1'b1;
+		ccif.ramWEN = 1'b1;
+		ccif.ramaddr = ccif.daddr[prio];
+		ccif.ramstore = ccif.dstore[prio];
+		if ((ccif.ramstate == ACCESS) || (ccif.dWEN == '0)) begin	
+			ccif.dwait[prio] = 1'b0;
+			ccif.ccwait[~prio] = 1'b0;
+			if (prio) begin
+				n_state = idle_0;
+			end
+			else if (~prio) begin
+				n_state = idle_1;
+			end 
+		end
+	end
+*/
 
 	if(state == cache_to_cache_1) begin
 		ccif.ccsnoopaddr[~prio] = ccif.daddr[prio];
