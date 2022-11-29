@@ -27,7 +27,6 @@ module dcache (
     // Check for dmemREN for LL and dmemWEN for SC
 
     assign next_snoopaddress = cif.ccsnoopaddr;
-    assign store_able = (dcif.datomic) ? (((link_register != dcif.dmemaddr) || ~link_valid) ? 0 : 1) : 1;
 
     always_ff @(posedge CLK, negedge nRST) begin
         if (~nRST) begin
@@ -111,31 +110,16 @@ module dcache (
             end
         end
 
-        //if((snoopaddress == next_snoopaddress) && (snoopaddress != '0)) frames[0] 
-
         casez(state)
             COMPARE_TAG: begin
                 cif.ccwrite = 0;
-
-                if(dcif.dmemREN) begin
-                    if(dcif.datomic) begin
-                        next_link_register = dcif.dmemaddr;
-                        next_link_valid = 1'b1;
-                    end
-                end
-
-                if(dcif.dmemWEN) begin
-                    if((dcif.datomic == 0) && dcif.dmemaddr == link_register) next_link_valid = '0;
-                    if(store_able == 0) begin
-                        dcif.dhit = 1;
-
-                    end
-                end
-
                 if(dcif.halt == 1) begin
                     n_state = FLUSH_INIT;
                     n_ind = 0;
                 end 
+                else if(~store_able) begin
+                    n_state = COMPARE_TAG;
+                end
                 else if (!dcif.dmemREN && !dcif.dmemWEN) begin
                     n_state = COMPARE_TAG;
                 end
@@ -170,20 +154,6 @@ module dcache (
                         n_state = invalidate;
                     end
                 end 
-/*                else if (dcif.dmemWEN && (frames[0][request.idx].tag == request.tag) && (frames[0][request.idx].data[0] == '0) && (frames[0][request.idx].data[1] == '0)) begin
-                    n_frames[0][request.idx].data[request.blkoff] = dcif.dmemstore;
-                    n_frames[0][request.idx].dirty = 1;
-                    cif.ccwrite = 1;
-                    cif.daddr = {request[31:3], 1'b0, request[1:0]};
-                    n_state = invalidate;
-                end  
-                else if (dcif.dmemWEN && (frames[1][request.idx].tag == request.tag) && (frames[1][request.idx].data[0] == '0) && (frames[1][request.idx].data[1] == '0)) begin
-                    n_frames[0][request.idx].data[request.blkoff] = dcif.dmemstore;
-                    n_frames[0][request.idx].dirty = 1;
-                    cif.ccwrite = 1;
-                    cif.daddr = {request[31:3], 1'b0, request[1:0]};
-                    n_state = invalidate;
-                end*/
                 else begin
                     n_state = frames[lru][request.idx].dirty ? WB1 : ALL1;
                 end
@@ -337,11 +307,29 @@ module dcache (
             end
         endcase
     end
-    
+
+    assign store_able = (dcif.datomic) ? (((link_register != dcif.dmemaddr) || ~link_valid) ? 0 : 1) : 1;
+
+    always_comb begin
+        //LL
+        if(dcif.dmemREN) begin
+            if(dcif.datomic) begin
+                next_link_register = dcif.dmemaddr;
+                next_link_valid = 1'b1;
+            end
+        end
+
+        //SC
+        if(dcif.dmemWEN) begin
+            if((dcif.datomic == 0) && (dcif.dmemaddr == link_register)) next_link_valid = 1'b0;
+            if((dcif.datomic == 0) && (snoopaddress == link_register)) next_link_valid = 1'b0; //not sure about this
+            if(store_able == 0) begin
+                dcif.dhit = 1;
+            end
+            else if(dcif.datomic && store_able) next_link_valid = 1'b0;
+        end
+    end
+
     assign request = dcif.dmemaddr;
 
 endmodule
-
-
-
-//else dstore
