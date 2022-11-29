@@ -93,6 +93,7 @@ module decode (
       deif.inst_out <= 0;
       deif.jump_use_out <= 0;
       deif.shift_inst <= 0;
+      deif.atomic <= 0;
     end
 /*
     else if(deif.load_use) begin
@@ -165,6 +166,7 @@ module decode (
         deif.inst_out <= deif.instruction;
         deif.jump_use_out <= deif.jump_use;
         deif.shift_inst <= next_shift_inst;
+        deif.atomic <= cuif.atomic;
       //end
       /*
       else begin

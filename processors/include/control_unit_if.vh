@@ -12,7 +12,7 @@ interface control_unit_if;
   import cpu_types_pkg::*;
 
   // signals
-  logic               PCSrc, MemtoReg, RegWEN, BNE, BEQ, LUI, JAL, JR, halt, dWEN, dREN, imemREN, ihit, dhit;
+  logic               atomic, PCSrc, MemtoReg, RegWEN, BNE, BEQ, LUI, JAL, JR, halt, dWEN, dREN, imemREN, ihit, dhit;
   logic [1:0]         ALUSrc, RegDest, JumpSel;
   word_t              inst;
   aluop_t             aluop;
@@ -23,7 +23,7 @@ interface control_unit_if;
   // port
   modport cu (
     input   inst, final_write_reg, ihit, dhit,
-    output  aluop, rs, rt, rd, imm, shamt, PCSrc, MemtoReg, RegWEN, BNE, BEQ, LUI, JAL, JR, halt, dWEN, dREN, imemREN, ALUSrc, JumpSel, RegDest, init_write_reg
+    output  atomic, aluop, rs, rt, rd, imm, shamt, PCSrc, MemtoReg, RegWEN, BNE, BEQ, LUI, JAL, JR, halt, dWEN, dREN, imemREN, ALUSrc, JumpSel, RegDest, init_write_reg
   );
 
   modport tb (

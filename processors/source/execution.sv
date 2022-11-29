@@ -45,6 +45,7 @@ always_ff @ (posedge CLK, negedge nRST) begin
         exeif.bne_flag_out <= 1'b0;
         delay <= 1'b0;
         delay1 <= 1'b0;
+        exeif.atomic_out = 1'b0;
     end
     else begin
         if (exeif.ihit || (exeif.dhit || ~exeif.enable) || (exeif.bne_eq == 1'd1 && (~exeif.mem_read_next && ~exeif.mem_write_next))) begin
@@ -78,6 +79,8 @@ always_ff @ (posedge CLK, negedge nRST) begin
             exeif.jump_use_out <= exeif.jump_use;
             exeif.jump_out <= exeif.jump;
             exeif.bne_flag_out <= exeif.bne_flag;
+
+            exeif.atomic_out <= exeif.atomic;
         end
     end
 end
