@@ -206,7 +206,7 @@ module datapath (
     caif.dmemWEN = exeif.mem_write_next && ~(exeif.halt_next || memif.halt_next) && enable;
     caif.dmemstore = exeif.read_dat2_next;
     caif.dmemaddr = exeif.out;
-    caif.datomic = exeif.atomic_out;
+    caif.datomic = exeif.atomic_out && ~(exeif.halt_next || memif.halt_next) && enable;
     
   end
 
