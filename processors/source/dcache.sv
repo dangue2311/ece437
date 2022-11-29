@@ -321,10 +321,7 @@ module dcache (
         if(dcif.dmemWEN) begin
             if((dcif.datomic == 0) && (dcif.dmemaddr == link_register)) next_link_valid = 1'b0;
             if((dcif.datomic == 0) && (snoopaddress == link_register)) next_link_valid = 1'b0; //not sure about this
-            if(store_able == 0) begin
-                dcif.dhit = 1;
-            end
-            else if(dcif.datomic && store_able) next_link_valid = 1'b0;
+            if(dcif.datomic && store_able) next_link_valid = 1'b0;
         end
     end
 
