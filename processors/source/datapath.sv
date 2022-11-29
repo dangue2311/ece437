@@ -58,6 +58,8 @@ module datapath (
       end
     end
 
+    //Datomic comes out of datapath. Goes into dcache.
+
     //Assign Instruction Fetch inputs
     ifif.enable = enable;
     ifif.ihit = caif.ihit;

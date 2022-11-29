@@ -21,8 +21,13 @@ module dcache (
 	logic [4:0] ind, n_ind;
     dcachef_t request, snoopaddress, next_snoopaddress;
     dcache_frame [1:0][7:0] frames, n_frames;
+    word_t link_register, next_link_register;
+    logic link_valid, next_link_valid, store_able;
+
+    // Check for dmemREN for LL and dmemWEN for SC
 
     assign next_snoopaddress = cif.ccsnoopaddr;
+    assign store_able = (dcif.datomic) ? (((link_register != dcif.dmemaddr) || ~link_valid) ? 0 : 1) : 1;
 
     always_ff @(posedge CLK, negedge nRST) begin
         if (~nRST) begin
@@ -35,9 +40,11 @@ module dcache (
             miss_count <= '0;
             total_cnt <= '0;
             wb_flag <= '1;
-//           cif.cctrans <= '0;
             snoopaddress <= '0;
-        end else begin
+            link_register <= '0;
+            link_valid <= '0;
+        end 
+        else begin
             frames <= n_frames;
             state <= n_state;
 			ind <= n_ind;
@@ -47,8 +54,9 @@ module dcache (
             miss_hit_flag <= n_miss_hit_flag;
             total_cnt <= n_total_cnt;
             wb_flag <= next_wb_flag;
-//           cif.cctrans <= next_cctrans;
             snoopaddress <= next_snoopaddress;
+            link_register <= next_link_register;
+            link_valid <= next_link_valid;
         end
     end
 
@@ -72,9 +80,12 @@ module dcache (
         n_total_cnt = total_cnt;
         next_wb_flag = '1;
         cif.cctrans = '0;
-//        next_cctrans = '0;
+        next_link_register = link_register;
+        next_link_valid = link_valid;
         
-        if(cif.ccwait /*&& (state != FLUSH1) && (state != FLUSH2) && (state != FLUSH3) && (state != FLUSH4) && (state != FLUSH5) && (state != FLUSH_INIT)*/) begin
+
+        //if link_register == ccsnoopaddr may need to set link_valid = 0
+        if(cif.ccwait) begin
             if(frames[0][snoopaddress.idx].tag == snoopaddress.tag && frames[0][snoopaddress.idx].valid) begin
                 if(cif.ccinv) begin
                     n_frames[0][snoopaddress.idx].valid = 0;
@@ -105,13 +116,28 @@ module dcache (
             COMPARE_TAG: begin
                 cif.ccwrite = 0;
 
+                if(dcif.dmemREN) begin
+                    if(dcif.datomic) begin
+                        next_link_register = dcif.dmemaddr;
+                        next_link_valid = 1'b1;
+                    end
+                end
+
+                if(dcif.dmemWEN) begin
+                    if((dcif.datomic == 0) && dcif.dmemaddr == link_register) next_link_valid = '0;
+                    if(store_able == 0) begin
+                        dcif.dhit = 1;
+
+                    end
+                end
+
                 if(dcif.halt == 1) begin
                     n_state = FLUSH_INIT;
                     n_ind = 0;
                 end 
                 else if (!dcif.dmemREN && !dcif.dmemWEN) begin
                     n_state = COMPARE_TAG;
-                end              
+                end
                 else if (frames[0][request.idx].tag == request.tag && frames[0][request.idx].valid) begin
                     dcif.dhit = 1;
                     n_total_cnt = total_cnt + 1;
@@ -201,7 +227,6 @@ module dcache (
 				if(cif.dwait) begin
                     cif.dWEN = 1;
                     cif.daddr = {frames[lru][request.idx].tag, request.idx, 1'b0, 2'b00}; // request
-
 				
                 end else begin
                     n_state = WB2;
