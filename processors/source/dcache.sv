@@ -100,9 +100,17 @@ module dcache (
             end
         end
 
+        //SETTING DHIT FOR STOREABLE
+        if(dcif.dmemWEN) begin
+            if(store_able == 0) begin
+                dcif.dhit = 1;
+            end
+        end
+        
         casez(state)
             COMPARE_TAG: begin
                 cif.ccwrite = 0;
+
                 if(dcif.halt == 1) begin
                     n_state = FLUSH_INIT;
                     n_ind = 0;
