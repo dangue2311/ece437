@@ -24,6 +24,7 @@ add wave -noupdate -group Bus /system_tb/DUT/CPU/CC/ccif/dREN
 add wave -noupdate -group Bus /system_tb/DUT/CPU/CC/ccif/dWEN
 add wave -noupdate -group Bus /system_tb/DUT/CPU/CC/ccif/cctrans
 add wave -noupdate -group Bus /system_tb/DUT/CPU/CC/ccif/dstore
+add wave -noupdate -group Bus /system_tb/DUT/CPU/CC/ccif/ccinv
 add wave -noupdate -group Bus /system_tb/DUT/CPU/CC/prio
 add wave -noupdate -group Bus /system_tb/DUT/CPU/CC/state
 add wave -noupdate -group RAM /system_tb/DUT/RAM/ramif/ramREN
@@ -42,15 +43,15 @@ add wave -noupdate -group {iCache DP1} /system_tb/DUT/CPU/dcif1/imemREN
 add wave -noupdate -group {iCache DP1} /system_tb/DUT/CPU/dcif1/imemload
 add wave -noupdate -group {iCache DP1} /system_tb/DUT/CPU/dcif1/imemaddr
 add wave -noupdate -group {iCache DP1} /system_tb/DUT/CPU/dcif1/halt
-add wave -noupdate -group {dcache reg0} -expand -subitemconfig {{/system_tb/DUT/CPU/CM0/DCACHE/frames[0]} -expand {/system_tb/DUT/CPU/CM0/DCACHE/frames[0][1]} -expand {/system_tb/DUT/CPU/CM0/DCACHE/frames[0][1].data} -expand {/system_tb/DUT/CPU/CM0/DCACHE/frames[0][0]} -expand {/system_tb/DUT/CPU/CM0/DCACHE/frames[0][0].data} -expand} /system_tb/DUT/CPU/CM0/DCACHE/frames
+add wave -noupdate -group {dcache reg0} /system_tb/DUT/CPU/CM0/DCACHE/frames
 add wave -noupdate -group {dcache reg0} /system_tb/DUT/CPU/CM0/DCACHE/state
-add wave -noupdate -group {dcache reg1} -expand -subitemconfig {{/system_tb/DUT/CPU/CM1/DCACHE/frames[0]} -expand {/system_tb/DUT/CPU/CM1/DCACHE/frames[0][1]} -expand {/system_tb/DUT/CPU/CM1/DCACHE/frames[0][1].data} -expand {/system_tb/DUT/CPU/CM1/DCACHE/frames[0][0]} -expand {/system_tb/DUT/CPU/CM1/DCACHE/frames[0][0].data} -expand} /system_tb/DUT/CPU/CM1/DCACHE/frames
+add wave -noupdate -group {dcache reg1} /system_tb/DUT/CPU/CM1/DCACHE/frames
 add wave -noupdate -group {dcache reg1} /system_tb/DUT/CPU/CM1/DCACHE/state
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {1156234 ps} 0}
+WaveRestoreCursors {{Cursor 1} {1069791 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 150
-configure wave -valuecolwidth 100
+configure wave -valuecolwidth 115
 configure wave -justifyvalue left
 configure wave -signalnamewidth 1
 configure wave -snapdistance 10
@@ -63,4 +64,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {150647 ps} {1657264 ps}
+WaveRestoreZoom {1313420483 ps} {1314283133 ps}

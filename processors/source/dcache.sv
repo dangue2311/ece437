@@ -89,6 +89,7 @@ module dcache (
             if(frames[0][snoopaddress.idx].tag == snoopaddress.tag && frames[0][snoopaddress.idx].valid) begin
                 if(cif.ccinv) begin
                     n_frames[0][snoopaddress.idx].valid = 0;
+                    n_frames[0][snoopaddress.idx].dirty = 0;
                 end
                 else begin
                     cif.cctrans = frames[0][snoopaddress.idx].valid & frames[0][snoopaddress.idx].dirty;
@@ -255,7 +256,7 @@ module dcache (
                 cif.ccwrite = 1;
                 cif.daddr = {request[31:3], 1'b0, request[1:0]};
                 n_state = invalidate;
-                if (cif.ccinv) begin
+                if (cif.ccinv && ~cif.ccwait) begin
                     n_state = COMPARE_TAG;
                     dcif.dhit = 1;
                 end
