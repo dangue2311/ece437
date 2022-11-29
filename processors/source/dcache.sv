@@ -24,8 +24,6 @@ module dcache (
     word_t link_register, next_link_register;
     logic link_valid, next_link_valid, store_able;
 
-    // Check for dmemREN for LL and dmemWEN for SC
-
     assign next_snoopaddress = cif.ccsnoopaddr;
 
     always_ff @(posedge CLK, negedge nRST) begin
@@ -59,8 +57,6 @@ module dcache (
         end
     end
 
-    //ccwait and ccinvalidate go high, invalidate at valid ccsnoopaddr
-
     always_comb begin
         n_state = state;
         n_frames = frames;
@@ -79,11 +75,7 @@ module dcache (
         n_total_cnt = total_cnt;
         next_wb_flag = '1;
         cif.cctrans = '0;
-        next_link_register = link_register;
-        next_link_valid = link_valid;
         
-
-        //if link_register == ccsnoopaddr may need to set link_valid = 0
         if(cif.ccwait) begin
             if(frames[0][snoopaddress.idx].tag == snoopaddress.tag && frames[0][snoopaddress.idx].valid) begin
                 if(cif.ccinv) begin
@@ -93,7 +85,6 @@ module dcache (
                 else begin
                     cif.cctrans = frames[0][snoopaddress.idx].valid & frames[0][snoopaddress.idx].dirty;
                     next_wb_flag = 0;
-                    //maybe frames[0][snoopaddress.idx].dirty = 0;
                     cif.dstore = frames[0][snoopaddress.idx].data[snoopaddress.blkoff];
                 end
             end
@@ -104,7 +95,6 @@ module dcache (
                 else begin
                     cif.cctrans = frames[1][snoopaddress.idx].valid & frames[1][snoopaddress.idx].dirty;
                     next_wb_flag = 0;
-                    //maybe frames[0][snoopaddress.idx].dirty = 0;
                     cif.dstore = frames[1][snoopaddress.idx].data[snoopaddress.blkoff];
                 end
             end
@@ -197,12 +187,12 @@ module dcache (
                 if(wb_flag == 1) cif.dstore = frames[lru][request.idx].data[0];
 				if(cif.dwait) begin
                     cif.dWEN = 1;
-                    cif.daddr = {frames[lru][request.idx].tag, request.idx, 1'b0, 2'b00}; // request
+                    cif.daddr = {frames[lru][request.idx].tag, request.idx, 1'b0, 2'b00}; 
 				
                 end else begin
                     n_state = WB2;
                     cif.dWEN = 1;
-                    cif.daddr =  {frames[lru][request.idx].tag, request.idx, 1'b0, 2'b00}; //{request[31:3], 1'b0, request[1:0]};
+                    cif.daddr =  {frames[lru][request.idx].tag, request.idx, 1'b0, 2'b00};
                 end
             end
 
@@ -211,11 +201,11 @@ module dcache (
                 if(wb_flag == 1) cif.dstore = frames[lru][request.idx].data[1];
 				 if(cif.dwait) begin
                     cif.dWEN = 1;
-                    cif.daddr = {frames[lru][request.idx].tag, request.idx, 1'b1, 2'b00}; //{request[31:3], 1'b1, request[1:0]}; //request + 32'd4;
+                    cif.daddr = {frames[lru][request.idx].tag, request.idx, 1'b1, 2'b00};
                 end 
                 else begin
                     cif.dWEN = 1;
-                    cif.daddr =  {frames[lru][request.idx].tag, request.idx, 1'b1, 2'b00}; //{request[31:3], 1'b0, request[1:0]};
+                    cif.daddr =  {frames[lru][request.idx].tag, request.idx, 1'b1, 2'b00};
                     n_state = ALL1;
                 end
             end
@@ -262,7 +252,6 @@ module dcache (
                 end else begin
                     n_state =  FLUSH_INIT;
 					n_ind = ind + 1;
-                    //Added line
                     n_frames[0][ind[2:0]].valid = 0;
                 end
 			end 
@@ -297,7 +286,6 @@ module dcache (
                 end else begin	
 					n_ind = ind + 1;
                     n_state =  FLUSH3; 
-                    //Added line
                     n_frames[1][ind[2:0]].valid = 0;
                 end
 			end 
@@ -311,6 +299,8 @@ module dcache (
     assign store_able = (dcif.datomic) ? (((link_register != dcif.dmemaddr) || ~link_valid) ? 0 : 1) : 1;
 
     always_comb begin
+        next_link_register = link_register;
+        next_link_valid = link_valid;
         //LL
         if(dcif.dmemREN) begin
             if(dcif.datomic) begin
