@@ -146,6 +146,7 @@ module datapath (
     exeif.forward_alu = exeif.out;
     exeif.forward_mem = memif.memory_out;
     exeif.jump = deif.JumpSel;
+    exeif.atomic = deif.atomic;
 
     hold2 = (caif.dmemload == 32'b0) ? ((enable == 1'b0) ? hold2 : 32'b0) :caif.dmemload;
     
@@ -205,6 +206,7 @@ module datapath (
     caif.dmemWEN = exeif.mem_write_next && ~(exeif.halt_next || memif.halt_next) && enable;
     caif.dmemstore = exeif.read_dat2_next;
     caif.dmemaddr = exeif.out;
+    caif.datomic = exeif.atomic_out;
     
   end
 

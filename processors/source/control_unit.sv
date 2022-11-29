@@ -34,6 +34,7 @@ always_comb begin
 	cuif.imm = 0; 
 	cuif.shamt = 0;
 	cuif.BEQ = 0;
+	cuif.atomic = 0;
 
     //RTYPE
 	if (opcode == RTYPE) begin
@@ -180,6 +181,21 @@ always_comb begin
 				cuif.dWEN = 1;
 				cuif.aluop = ALU_ADD;
 				cuif.ALUSrc = 1;
+			end
+			LL: begin
+		        if(cuif.dhit | cuif.ihit) cuif.RegWEN = 1;
+				cuif.MemtoReg = 1;
+				cuif.aluop = ALU_ADD;
+				cuif.ALUSrc = 1;
+				cuif.dREN = 1;
+				cuif.atomic = 1;
+			end
+			SC: begin
+				cuif.dWEN = 1;
+				cuif.aluop = ALU_ADD;
+				cuif.ALUSrc = 1;
+				cuif.atomic = 1;
+				if(cuif.dhit | cuif.ihit) cuif.RegWEN = 1;
 			end
 			HALT: begin
 				cuif.halt = 1;
