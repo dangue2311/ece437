@@ -55,7 +55,11 @@ module datapath (
       if (addr_reg != exeif.out || ((exeif.atomic_out == 1) && (atom == 0)))begin
         enable = 1'b1;
         next_state = 1'b0;
-      end
+      end /*
+      if (atom == 1 && exeif.atomic_out == 0 && addr_reg != exeif.out) begin
+        enable = 1'b0;
+        next_state = 1'b1;
+      end */
     end
 
     //Datomic comes out of datapath. Goes into dcache.
