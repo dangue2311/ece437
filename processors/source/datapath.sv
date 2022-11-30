@@ -39,7 +39,7 @@ module datapath (
   forwarding_unit FORWARD(fuif);
 
   logic[31:0] hold1, hold2, hold2_reg, addr_reg;
-  logic state, next_state, enable;
+  logic state, next_state, enable, atom;
   
   always_comb begin
 
@@ -52,7 +52,7 @@ module datapath (
     end
     else if(state == 1'b1) begin
       enable = 1'b0;
-      if (addr_reg != exeif.out)begin
+      if (addr_reg != exeif.out || ((exeif.atomic_out == 1) && (atom == 0)))begin
         enable = 1'b1;
         next_state = 1'b0;
       end
@@ -217,6 +217,7 @@ module datapath (
         hold2_reg <= 32'b0;
         state <= 1'b0;
         addr_reg <= 32'b0;
+        atom <= 1'b0;
       end
       else begin
         caif.halt <= memif.halt_next | caif.halt;
@@ -224,6 +225,7 @@ module datapath (
         hold2_reg <= hold2;
         state <= next_state;
         addr_reg <= exeif.out;
+        atom <= exeif.atomic_out;
       end
     end
 
