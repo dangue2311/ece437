@@ -43,12 +43,20 @@ add wave -noupdate -group {iCache DP1} /system_tb/DUT/CPU/dcif1/imemREN
 add wave -noupdate -group {iCache DP1} /system_tb/DUT/CPU/dcif1/imemload
 add wave -noupdate -group {iCache DP1} /system_tb/DUT/CPU/dcif1/imemaddr
 add wave -noupdate -group {iCache DP1} /system_tb/DUT/CPU/dcif1/halt
+add wave -noupdate -group {dcache reg0} /system_tb/DUT/CPU/CM0/DCACHE/snoopaddress
 add wave -noupdate -group {dcache reg0} /system_tb/DUT/CPU/CM0/DCACHE/frames
 add wave -noupdate -group {dcache reg0} /system_tb/DUT/CPU/CM0/DCACHE/state
+add wave -noupdate -group {dcache reg0} /system_tb/DUT/CPU/CM0/DCACHE/link_register
+add wave -noupdate -group {dcache reg0} /system_tb/DUT/CPU/CM0/DCACHE/link_valid
+add wave -noupdate -group {dcache reg0} /system_tb/DUT/CPU/CM0/DCACHE/store_able
+add wave -noupdate -group {dcache reg1} /system_tb/DUT/CPU/CM1/DCACHE/snoopaddress
 add wave -noupdate -group {dcache reg1} /system_tb/DUT/CPU/CM1/DCACHE/frames
 add wave -noupdate -group {dcache reg1} /system_tb/DUT/CPU/CM1/DCACHE/state
+add wave -noupdate -group {dcache reg1} /system_tb/DUT/CPU/CM1/DCACHE/link_register
+add wave -noupdate -group {dcache reg1} /system_tb/DUT/CPU/CM1/DCACHE/link_valid
+add wave -noupdate -group {dcache reg1} /system_tb/DUT/CPU/CM1/DCACHE/store_able
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {1069791 ps} 0}
+WaveRestoreCursors {{Cursor 1} {3036719 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 115
@@ -64,4 +72,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {1313420483 ps} {1314283133 ps}
+WaveRestoreZoom {1548556 ps} {2411206 ps}

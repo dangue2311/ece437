@@ -114,20 +114,23 @@ module dcache (
                 if(dcif.halt == 1) begin
                     n_state = FLUSH_INIT;
                     n_ind = 0;
-                end 
-                else if(~store_able) begin
-                    n_state = COMPARE_TAG;
                 end
                 else if (!dcif.dmemREN && !dcif.dmemWEN) begin
+                    n_state = COMPARE_TAG;
+                end
+                else if(~store_able) begin
                     n_state = COMPARE_TAG;
                 end
                 else if (frames[0][request.idx].tag == request.tag && frames[0][request.idx].valid) begin
                     dcif.dhit = 1;
                     n_total_cnt = total_cnt + 1;
                     dcif.dmemload = frames[0][request.idx].data[request.blkoff];
-                    if (dcif.dmemWEN) begin
+                    //For SC
+                    if ((dcif.dmemWEN && ~dcif.datomic) || (dcif.datomic && dcif.dmemWEN && store_able)) begin
+                        if(dcif.datomic) begin
+                            dcif.dmemload = {30'b0, (dcif.dmemaddr == link_register) && link_valid};
+                        end
                         dcif.dhit = 0;
-                        //dcif.dmemload = dcif.dmemstore;
                         n_frames[0][request.idx].data[request.blkoff] = dcif.dmemstore;
                         n_frames[0][request.idx].dirty = 1;
                         //For invalidate
@@ -141,9 +144,12 @@ module dcache (
                     n_lru = ~lru;
                     n_total_cnt = total_cnt + 1;
                     dcif.dmemload = frames[1][request.idx].data[request.blkoff];
-                    if (dcif.dmemWEN) begin
+                    if ((dcif.dmemWEN && ~dcif.datomic) || (dcif.datomic && dcif.dmemWEN && store_able)) begin
+                        //For SC
+                        if(dcif.datomic) begin
+                            dcif.dmemload = {30'b0, (dcif.dmemaddr == link_register) && link_valid};
+                        end
                         dcif.dhit = 0;
-                        //dcif.dmemload = dcif.dmemstore;
                         n_frames[1][request.idx].data[request.blkoff] = dcif.dmemstore;
                         n_frames[1][request.idx].dirty = 1;
                         //For invalidate
@@ -320,8 +326,9 @@ module dcache (
         //SC
         if(dcif.dmemWEN) begin
             if((dcif.datomic == 0) && (dcif.dmemaddr == link_register)) next_link_valid = 1'b0;
-            if((dcif.datomic == 0) && (snoopaddress == link_register)) next_link_valid = 1'b0; //not sure about this
+            if((dcif.datomic == 0) && (snoopaddress == link_register)) next_link_valid = 1'b0; 
             if(dcif.datomic && store_able) next_link_valid = 1'b0;
+            if((dcif.datomic) && (dcif.dmemaddr == link_register)) next_link_valid = 1'b0;
         end
     end
 
