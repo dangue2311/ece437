@@ -310,7 +310,13 @@ module dcache (
         endcase
     end
 
-    assign store_able = (dcif.datomic) ? (((link_register != dcif.dmemaddr) || ~link_valid) ? 0 : 1) : 1;
+    always_comb begin
+        store_able = 1;
+        if(dcif.datomic) begin
+            if((link_register == dcif.dmemaddr) && link_valid) store_able = 1;
+            else store_able = 0;
+        end
+    end
 
     always_comb begin
         next_link_register = link_register;
