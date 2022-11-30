@@ -119,9 +119,6 @@ module dcache (
                 else if (!dcif.dmemREN && !dcif.dmemWEN) begin
                     n_state = COMPARE_TAG;
                 end
-                else if(~store_able) begin
-                    n_state = COMPARE_TAG;
-                end
                 else if (frames[0][request.idx].tag == request.tag && frames[0][request.idx].valid) begin
                     dcif.dhit = 1;
                     n_total_cnt = total_cnt + 1;
@@ -312,8 +309,8 @@ module dcache (
     end
 
     always_comb begin
-        store_able = 1;
-        if(dcif.datomic) begin
+        store_able = 0;
+        if(dcif.datomic && dcif.dmemWEN) begin
             if((link_register == dcif.dmemaddr) && link_valid) store_able = 1;
             else store_able = 0;
         end
