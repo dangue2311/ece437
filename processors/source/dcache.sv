@@ -99,13 +99,14 @@ module dcache (
                 end
             end
         end
-
+/*
         //SETTING DHIT FOR STOREABLE
         if(dcif.dmemWEN) begin
             if(store_able == 0) begin
                 dcif.dhit = 1;
             end
         end
+        */
         
         casez(state)
             COMPARE_TAG: begin
