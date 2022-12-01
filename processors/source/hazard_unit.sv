@@ -108,11 +108,11 @@ module hazard_unit (
         huif.fetch_instruction[31:26] == 6'b000101) begin
           huif.jump_use = 1'b1;
           huif.flag_ju = 1'b1;
-    end
+    end /*
     else if (huif.fetch_instruction == 32'he0430000) begin
       huif.jump_use = 1'b1;
       huif.flag_ju = 1'b1;
-    end
+    end */
   end
 endmodule
 
