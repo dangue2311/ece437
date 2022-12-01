@@ -152,7 +152,7 @@ module datapath (
     exeif.jump = deif.JumpSel;
     exeif.atomic = deif.atomic;
 
-    hold2 = (caif.dmemload == 32'b0) ? ((enable == 1'b0) ? hold2 : 32'b0) :caif.dmemload;
+    hold2 = (caif.dmemload == 32'b0 || caif.dhit) ? ((enable == 1'b0) ? hold2 : 32'b0) :caif.dmemload;
     
     //Assign Memory inputs
     //control signals

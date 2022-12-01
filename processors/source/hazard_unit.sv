@@ -54,7 +54,8 @@ module hazard_unit (
       //huif.mem_instruction[31:26] == 6'b000010 || huif.mem_instruction[31:26] == 6'b000011 ||
       (huif.mem_instruction[31:26] == 6'b0 && huif.mem_instruction[5:0] == 6'b001000)) ||
       ((huif.dec_instruction == huif.exec_instruction) && (huif.fetch_instruction[31:26] == 6'b000100 || huif.fetch_instruction[31:26] == 6'b000101 || huif.fetch_instruction[31:26] == 6'b111000)) || 
-      ((huif.dec_instruction == huif.exec_instruction) && (huif.mem_instruction == '0))) begin
+      ((huif.dec_instruction == huif.exec_instruction) && (huif.mem_instruction == '0)) || 
+      ((huif.dec_instruction == huif.exec_instruction) && (huif.fetch_instruction[31:26] == 6'b110000 || huif.fetch_instruction[31:26] == 6'b111000))) begin
         if ((huif.fetch_instruction != 32'hffffff && huif.dec_instruction != 32'hffffff) && (huif.fetch_instruction != huif.dec_instruction)) begin 
           if (huif.fetch_instruction[31:26] == 6'b0 && huif.fetch_instruction[5:0] != 6'b0) begin
             if (rd_dec == rs_fetch || rd_dec == rt_fetch || rd_exec == rs_fetch || rd_exec == rt_fetch) begin
@@ -63,13 +64,13 @@ module hazard_unit (
             end
           end 
           if (huif.fetch_instruction[31:26] == 6'b110000 || huif.fetch_instruction[31:26] == 6'b100011 || huif.fetch_instruction[31:26] == 6'b000100 || huif.fetch_instruction[31:26] == 6'b000101) begin
-            if (rd_dec == rs_fetch || rd_dec == rt_fetch || rd_exec == rs_fetch || rd_exec == rt_fetch) begin
+            if (rd_dec == rs_fetch || rd_dec == rt_fetch || rd_exec == rs_fetch || rd_exec == rt_fetch || rt_dec == rt_fetch) begin
               huif.load_use = 1'b1;
               huif.flag_lu = 1'b1;
             end
           end
           if (huif.fetch_instruction[31:26] == 6'b111000 || huif.fetch_instruction[31:26] == 6'b101011 || huif.fetch_instruction[31:26] == 6'b000100 || huif.fetch_instruction[31:26] == 6'b000101 ||(huif.fetch_instruction[31:26] == 6'b0 && huif.fetch_instruction[5:0] != 6'b0)) begin
-            if (rd_dec == rs_fetch || rd_dec == rt_fetch || rd_exec == rs_fetch || rd_exec == rt_fetch) begin  
+            if (rd_dec == rs_fetch || rd_dec == rt_fetch || rd_exec == rs_fetch || rd_exec == rt_fetch  || rt_dec == rt_fetch) begin  
               huif.load_use = 1'b1;
               huif.flag_lu = 1'b1;
             end
