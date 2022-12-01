@@ -108,6 +108,7 @@ module dcache (
         end
         */
         
+
         casez(state)
             COMPARE_TAG: begin
                 cif.ccwrite = 0;
@@ -126,7 +127,7 @@ module dcache (
                     //For SC
                     if ((dcif.dmemWEN && ~dcif.datomic) || (dcif.datomic && dcif.dmemWEN && store_able)) begin
                         if(dcif.datomic) begin
-                            dcif.dmemload = {30'b0, (dcif.dmemaddr == link_register) && link_valid};
+                            dcif.dmemload = {31'b0, store_able};
                         end
                         dcif.dhit = 0;
                         n_frames[0][request.idx].data[request.blkoff] = dcif.dmemstore;
@@ -145,7 +146,7 @@ module dcache (
                     if ((dcif.dmemWEN && ~dcif.datomic) || (dcif.datomic && dcif.dmemWEN && store_able)) begin
                         //For SC
                         if(dcif.datomic) begin
-                            dcif.dmemload = {30'b0, (dcif.dmemaddr == link_register) && link_valid};
+                            dcif.dmemload = {31'b0, store_able};
                         end
                         dcif.dhit = 0;
                         n_frames[1][request.idx].data[request.blkoff] = dcif.dmemstore;
