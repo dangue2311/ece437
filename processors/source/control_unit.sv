@@ -192,6 +192,7 @@ always_comb begin
 			end
 			SC: begin
 				cuif.dWEN = 1;
+				cuif.MemtoReg = 1;
 				cuif.aluop = ALU_ADD;
 				cuif.ALUSrc = 1;
 				cuif.atomic = 1;
