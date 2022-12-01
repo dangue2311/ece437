@@ -44,6 +44,7 @@ module datapath (
   always_comb begin
 
     next_state = state;
+    enable = 1'b1;
     if(state == 0) begin
       enable = 1'b1;
       if (caif.dhit == 1'b1) begin
@@ -152,8 +153,13 @@ module datapath (
     exeif.jump = deif.JumpSel;
     exeif.atomic = deif.atomic;
 
-    hold2 = (caif.dmemload == 32'b0 || caif.dhit) ? ((enable == 1'b0) ? hold2 : 32'b0) :caif.dmemload;
-    
+    //hold2 = (caif.dmemload == 32'b0) ? ((enable == 1'b0) ? hold2 : 32'b0) :caif.dmemload;
+    //   hold2 = (caif.dmemload == 32'b0 || caif.dhit) ? ((enable == 1'b0) ? hold2 : 32'b0) :caif.dmemload;
+
+    if (caif.dhit) hold2 = caif.dmemload;
+    else if (~enable) hold2 = hold2;
+    else hold2 = 32'b0;
+
     //Assign Memory inputs
     //control signals
     memif.enable = enable;

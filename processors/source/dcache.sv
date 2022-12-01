@@ -75,6 +75,7 @@ module dcache (
         n_total_cnt = total_cnt;
         next_wb_flag = '1;
         cif.cctrans = '0;
+        cif.ccwrite = 0;
         
         if(cif.ccwait) begin
             if(frames[0][snoopaddress.idx].tag == snoopaddress.tag && frames[0][snoopaddress.idx].valid) begin
@@ -111,7 +112,7 @@ module dcache (
 
         casez(state)
             COMPARE_TAG: begin
-                cif.ccwrite = 0;
+                //cif.ccwrite = 0;
 
                 if(dcif.halt == 1) begin
                     n_state = FLUSH_INIT;
