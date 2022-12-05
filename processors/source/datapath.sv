@@ -155,7 +155,7 @@ module datapath (
 
     //hold2 = (caif.dmemload == 32'b0) ? ((enable == 1'b0) ? hold2 : 32'b0) :caif.dmemload;
     //   hold2 = (caif.dmemload == 32'b0 || caif.dhit) ? ((enable == 1'b0) ? hold2 : 32'b0) :caif.dmemload;
-
+    hold2 = 32'b0;
     if (caif.dhit) hold2 = caif.dmemload;
     else if (~enable) hold2 = hold2;
     else hold2 = 32'b0;

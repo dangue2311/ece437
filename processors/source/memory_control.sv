@@ -120,7 +120,7 @@ always_comb begin
 		else if (ccif.dREN[0]||ccif.dWEN[0]) begin
 			prio_hold = 1'b0;
 			n_state = setup;
-			ccif.ccsnoopaddr[1] = ccif.daddr[0];
+			ccif.ccsnoopaddr[1] = daddr[0];
 			ccif.iwait[1] = 1'b1;
 			ccif.ccwait[1] = 1'b1;		
 		end
