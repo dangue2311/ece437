@@ -157,7 +157,7 @@ module datapath (
     //   hold2 = (caif.dmemload == 32'b0 || caif.dhit) ? ((enable == 1'b0) ? hold2 : 32'b0) :caif.dmemload;
     hold2 = 32'b0;
     if (caif.dhit) hold2 = caif.dmemload;
-    else if (~enable) hold2 = hold2;
+    else if (~enable) hold2 = hold2_reg;
     else hold2 = 32'b0;
 
     //Assign Memory inputs
@@ -232,10 +232,14 @@ module datapath (
       else begin
         caif.halt <= memif.halt_next | caif.halt;
         hold1 <= exeif.out;
-        hold2_reg <= hold2;
+        //hold2_reg <= hold2;
         state <= next_state;
         addr_reg <= exeif.out;
         atom <= exeif.atomic_out;
+        if (caif.dhit) 
+          hold2_reg <= caif.dmemload;
+        else 
+          hold2_reg <= hold2;
       end
     end
 
