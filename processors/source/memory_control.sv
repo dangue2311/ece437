@@ -37,8 +37,8 @@ logic prio, prio_hold;
 
 
 // number of cpus for cc
-parameter CPUS = 2;
-
+parameter CPUS = 1;
+/*
 always_ff @(posedge CLK, negedge nRST) begin
 	if (~nRST) begin
 		state = idle_0;
@@ -312,9 +312,8 @@ always_comb begin
 end
 
 
-endmodule
+endmodule */
 
-/*
 
 	always_comb begin //dwait & iwait 
 		ccif.dwait = 1'b1;
@@ -374,5 +373,3 @@ endmodule
 		end
 	end
 endmodule
-
-*/
