@@ -39,7 +39,7 @@ module datapath (
   forwarding_unit FORWARD(fuif);
 
   logic[31:0] hold1, hold2, hold2_reg, addr_reg;
-  logic state, next_state, enable, atom;
+  logic state, next_state, enable, atom, jump;
   
   always_comb begin
 
@@ -210,7 +210,7 @@ module datapath (
     wbif.alu_out = memif.out_next;
 
     //assign DP
-    caif.imemREN = (huif.jump_use == 1'b1) ? 1'b0 : 1'b1; // || hold1 && ~hold2
+    caif.imemREN = (huif.jump_use == 1'b1 || (jump == 1'b0 && deif.JumpSel_inst != 2'b0)) ? 1'b0 : 1'b1; // || hold1 && ~hold2
     caif.imemaddr = ifif.PC;
     caif.dmemREN = exeif.mem_read_next && ~(exeif.halt_next || memif.halt_next) && enable;
     caif.dmemWEN = exeif.mem_write_next && ~(exeif.halt_next || memif.halt_next) && enable;
@@ -228,6 +228,7 @@ module datapath (
         state <= 1'b0;
         addr_reg <= 32'b0;
         atom <= 1'b0;
+        jump <= 1'b0;
       end
       else begin
         caif.halt <= memif.halt_next | caif.halt;
@@ -240,6 +241,10 @@ module datapath (
           hold2_reg <= caif.dmemload;
         else 
           hold2_reg <= hold2;
+        if (deif.JumpSel_inst != 2'b0) 
+          jump <= 1'b1;
+        else
+          jump <= 1'b0;
       end
     end
 

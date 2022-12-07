@@ -74,6 +74,14 @@ module instruction_fetch (
           ifif.PC <= {next_pp4[31:28],ifif.cache_in[25:0],2'b0};
           ifif.pp4 <= next_pp4;
         end
+        /*else if ((ifif.cache_in[31:26] == 6'b0 && ifif.cache_in[6:0] == 6'b001000) && (ifif.ihit) && ~(ifif.load_use)) begin
+          ifif.PC <= ifif.jump_jr;
+          ifif.pp4 <= next_pp4;
+        end */
+        /*else if (ifif.cache_in[31:26] == 6'b0 && ifif.cache_in[6:0] == 6'b001000) begin
+          ifif.PC <= ifif.jump_jr;
+          ifif.pp4 <= next_pp4;
+        end*/
         else if (ifif.jump_sig == 2'd1 && ~ifif.load_use && ~ifif.jump_use) begin
           ifif.PC <= ifif.jump_add;
           ifif.pp4 <= next_pp4;
