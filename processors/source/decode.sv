@@ -25,7 +25,7 @@ module decode (
 
   //New Signals
   word_t next_SignExt, next_ZeroExt, next_JumpAddr, next_LowerZero, next_init_write_reg, pp4_out_clk;
-  logic next_out_WEN;
+  logic next_out_WEN, hold;
   logic [27:0] next_shift_inst;
 
   //Assign variables (assuming we want just input values) 
@@ -131,7 +131,7 @@ module decode (
     end
 */
 //    else if ((deif.ihit || (deif.dhit || ~deif.enable)) && (deif.load_use == 1'b0)) begin //If ihit or dhit, latch PC values
-    else if ((deif.ihit || (deif.dhit || ~deif.enable) || deif.bne_eq) && (deif.load_use == 1'b0)) begin //If ihit or dhit, latch PC values
+    else if ((deif.ihit || (deif.dhit || ~deif.enable) || deif.bne_eq) && deif.load_use == 1'b0) begin //If ihit or dhit, latch PC values
       //if(~deif.load_use) begin //||~deif.load_use
 
         pp4_out_clk <= deif.pp4_out;

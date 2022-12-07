@@ -17,9 +17,21 @@ always_ff @ (posedge CLK, negedge nRST) begin
 end
 
 always_comb begin
-  rfif.rdat1 = registers[rfif.rsel1];
-  rfif.rdat2 = registers[rfif.rsel2];
+  //rfif.rdat1 = registers[rfif.rsel1];
+  //rfif.rdat2 = registers[rfif.rsel2];
   rfif.register31 = registers[31];
+  if (rfif.rsel1 == rfif.wsel && rfif.WEN) begin
+    rfif.rdat1 = rfif.wdat;
+  end
+  else begin
+    rfif.rdat1 = registers[rfif.rsel1];
+  end
+  if (rfif.rsel2 == rfif.wsel && rfif.WEN) begin
+    rfif.rdat2 = rfif.wdat;
+  end
+  else begin
+    rfif.rdat2 = registers[rfif.rsel2];
+  end 
 end
 
 endmodule
