@@ -223,6 +223,7 @@ module dcache (
             invalidate: begin
                 n_frames[0][request.idx].data[request.blkoff] = dcif.dmemstore;
                 n_frames[0][request.idx].dirty = 1;
+                n_frames[0][request.idx].valid = 1;
                 cif.ccwrite = 1;
                 cif.daddr = {request[31:3], 1'b0, request[1:0]};
                 n_state = invalidate;
