@@ -19,12 +19,12 @@ module dcache (
     word_t miss_count, n_miss_count;
     logic miss_hit_flag, n_miss_hit_flag, lru, n_lru, wb_flag, next_wb_flag, next_cctrans;
 	logic [4:0] ind, n_ind;
-    dcachef_t request, snoopaddress, next_snoopaddress;
+    dcachef_t request, snoopaddress;
     dcache_frame [1:0][7:0] frames, n_frames;
     word_t link_register, next_link_register;
     logic link_valid, next_link_valid, store_able;
 
-    assign next_snoopaddress = cif.ccsnoopaddr;
+    assign snoopaddress = cif.ccsnoopaddr;
 
     always_ff @(posedge CLK, negedge nRST) begin
         if (~nRST) begin
@@ -76,25 +76,25 @@ module dcache (
         cif.ccwrite = 0;
         
         if(cif.ccwait) begin
-            if(frames[0][cif.ccsnoopaddr.idx].tag == cif.ccsnoopaddr.tag && frames[0][cif.ccsnoopaddr.idx].valid) begin
+            if(frames[0][snoopaddr.idx].tag == snoopaddr.tag && frames[0][snoopaddr.idx].valid) begin
                 if(cif.ccinv) begin
-                    n_frames[0][cif.ccsnoopaddr.idx].valid = 0;
-                    n_frames[0][cif.ccsnoopaddr.idx].dirty = 0;
+                    n_frames[0][snoopaddr.idx].valid = 0;
+                    n_frames[0][snoopaddr.idx].dirty = 0;
                 end
                 else begin
-                    cif.cctrans = frames[0][cif.ccsnoopaddr.idx].valid & frames[0][cif.ccsnoopaddr.idx].dirty;
+                    cif.cctrans = frames[0][snoopaddr.idx].valid & frames[0][snoopaddr.idx].dirty;
                     next_wb_flag = 0;
-                    cif.dstore = frames[0][cif.ccsnoopaddr.idx].data[cif.ccsnoopaddr.blkoff];
+                    cif.dstore = frames[0][snoopaddr.idx].data[snoopaddr.blkoff];
                 end
             end
-            else if(frames[1][cif.ccsnoopaddr.idx].tag == cif.ccsnoopaddr.tag && frames[1][cif.ccsnoopaddr.idx].valid) begin
+            else if(frames[1][snoopaddr.idx].tag == snoopaddr.tag && frames[1][snoopaddr.idx].valid) begin
                 if(cif.ccinv) begin
-                    n_frames[1][cif.ccsnoopaddr.idx].valid = 0;
+                    n_frames[1][snoopaddr.idx].valid = 0;
                 end
                 else begin
-                    cif.cctrans = frames[1][cif.ccsnoopaddr.idx].valid & frames[1][cif.ccsnoopaddr.idx].dirty;
+                    cif.cctrans = frames[1][snoopaddr.idx].valid & frames[1][snoopaddr.idx].dirty;
                     next_wb_flag = 0;
-                    cif.dstore = frames[1][cif.ccsnoopaddr.idx].data[cif.ccsnoopaddr.blkoff];
+                    cif.dstore = frames[1][snoopaddr.idx].data[snoopaddr.blkoff];
                 end
             end
         end
@@ -329,7 +329,7 @@ module dcache (
         //SC
         if(dcif.dmemWEN) begin
             if((dcif.datomic == 0) && (dcif.dmemaddr == link_register)) next_link_valid = 1'b0;
-            if((dcif.datomic == 0) && (cif.ccsnoopaddr == link_register)) next_link_valid = 1'b0; 
+            if((dcif.datomic == 0) && (snoopaddr == link_register)) next_link_valid = 1'b0; 
             if(dcif.datomic && store_able) next_link_valid = 1'b0;
             if((dcif.datomic) && (dcif.dmemaddr == link_register)) next_link_valid = 1'b0;
         end
