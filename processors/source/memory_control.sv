@@ -229,7 +229,7 @@ always_comb begin
 		ccif.ramstore = ccif.dstore[~prio];
 		if (ccif.ramstate == ACCESS) begin
 			n_state = cache_to_cache_3;
-			ccif.dwait[prio] = 1'b0;
+			//ccif.dwait[prio] = 1'b0;
 			ccif.dload[prio] = ccif.dstore[~prio];
 		end
 	end
