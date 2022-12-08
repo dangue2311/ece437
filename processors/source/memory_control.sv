@@ -37,8 +37,8 @@ logic prio, prio_hold;
 
 
 // number of cpus for cc
-parameter CPUS = 1;
-/*
+parameter CPUS = 2;
+
 always_ff @(posedge CLK, negedge nRST) begin
 	if (~nRST) begin
 		state = idle_0;
@@ -120,7 +120,7 @@ always_comb begin
 		else if (ccif.dREN[0]||ccif.dWEN[0]) begin
 			prio_hold = 1'b0;
 			n_state = setup;
-			ccif.ccsnoopaddr[1] = daddr[0];
+			ccif.ccsnoopaddr[1] = ccif.daddr[0];
 			ccif.iwait[1] = 1'b1;
 			ccif.ccwait[1] = 1'b1;		
 		end
@@ -312,9 +312,9 @@ always_comb begin
 end
 
 
-endmodule */
+endmodule
 
-
+/*
 	always_comb begin //dwait & iwait 
 		ccif.dwait = 1'b1;
 		ccif.iwait = 1'b1;
@@ -372,4 +372,4 @@ endmodule */
 			ccif.ramREN = 1'b1;
 		end
 	end
-endmodule
+endmodule */
